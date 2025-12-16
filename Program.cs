@@ -25,6 +25,8 @@ builder.Services.AddSingleton<AncillaryUserJsonLoader>();
 
 // Register Repositories as Singletons
 builder.Services.AddSingleton<BackendApi.Infrastructure.Repositories.IPatientRepository, BackendApi.Infrastructure.Repositories.PatientRepository>();
+builder.Services.AddSingleton<BackendApi.Infrastructure.Repositories.IContactUserRepository, BackendApi.Infrastructure.Repositories.ContactUserRepository>();
+builder.Services.AddSingleton<BackendApi.Infrastructure.Repositories.IAncillaryUserRepository, BackendApi.Infrastructure.Repositories.AncillaryUserRepository>();
 
 // Add Swagger
 builder.Services.SwaggerDocument(o =>
