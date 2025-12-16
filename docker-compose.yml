@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     container_name: backend-api
     ports:
-      - "5000:8080"
+      - "5001:8080"
     volumes:
       # Mount JSON data files from parent directory
       - ../all_patients_data_f.json:/data/all_patients_data_f.json:ro
@@ -29,7 +29,33 @@ services:
       start_period: 5s
     networks:
       - backend-network
+  
+  backend-api-dev:
+    image: mcr.microsoft.com/dotnet/sdk:8.0
+    container_name: backend-api-dev
+    working_dir: /src
+    profiles: ["dev"]                    # opt-in: starts only with --profile dev
+    volumes:
+      - ./:/src                          # mount the repo backend-api folder into /src
+      - ../all_patients_data_f.json:/data/all_patients_data_f.json:ro
+      - ../getActiveAncillaryUsers.json:/data/getActiveAncillaryUsers.json:ro
+      - ../getActiveContactUsers.json:/data/getActiveContactUsers.json:ro
+      - nuget_cache:/root/.nuget/packages:rw # Optional (speeds up restores)
+    command: >
+      bash -lc "dotnet restore &&
+               DOTNET_USE_POLLING_FILE_WATCHER=1 dotnet watch --project backend-api.csproj run --urls http://+:8080"
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - DataFiles__PatientsDataPath=/data/all_patients_data_f.json
+      - DataFiles__ActiveAncillaryUsersPath=/data/getActiveAncillaryUsers.json
+      - DataFiles__ActiveContactUsersPath=/data/getActiveContactUsers.json
+      - DOTNET_USE_POLLING_FILE_WATCHER=1
+    restart: unless-stopped
 
 networks:
   backend-network:
     driver: bridge
+volumes:
+  nuget_cache:

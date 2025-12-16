@@ -30,10 +30,10 @@ COPY --from=publish /app/publish .
 COPY appsettings.json .
 COPY appsettings.Development.json .
 
-# Copy JSON data files from parent directory (if they exist)
-COPY --chown=appuser:appuser ../all_patients_data_f.json /data/ 2>/dev/null || true
-COPY --chown=appuser:appuser ../getActiveAncillaryUsers.json /data/ 2>/dev/null || true
-COPY --chown=appuser:appuser ../getActiveContactUsers.json /data/ 2>/dev/null || true
+# Copy JSON data files from parent directory if they exist (uncomment if needed)
+# COPY --chown=appuser:appuser ../all_patients_data_f.json /data/
+# COPY --chown=appuser:appuser ../getActiveAncillaryUsers.json /data/
+# COPY --chown=appuser:appuser ../getActiveContactUsers.json /data/
 
 # Set ownership
 RUN chown -R appuser:appuser /app && \
