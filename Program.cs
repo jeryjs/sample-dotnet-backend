@@ -3,6 +3,7 @@ using FastEndpoints.Swagger;
 using Serilog;
 using BackendApi.Middleware;
 using BackendApi.Infrastructure.Data;
+using BackendApi.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,9 +25,9 @@ builder.Services.AddSingleton<ContactUserJsonLoader>();
 builder.Services.AddSingleton<AncillaryUserJsonLoader>();
 
 // Register Repositories as Singletons
-builder.Services.AddSingleton<BackendApi.Infrastructure.Repositories.IPatientRepository, BackendApi.Infrastructure.Repositories.PatientRepository>();
-builder.Services.AddSingleton<BackendApi.Infrastructure.Repositories.IContactUserRepository, BackendApi.Infrastructure.Repositories.ContactUserRepository>();
-builder.Services.AddSingleton<BackendApi.Infrastructure.Repositories.IAncillaryUserRepository, BackendApi.Infrastructure.Repositories.AncillaryUserRepository>();
+builder.Services.AddSingleton<IPatientRepository, PatientRepository>();
+builder.Services.AddSingleton<IContactUserRepository, ContactUserRepository>();
+builder.Services.AddSingleton<IAncillaryUserRepository, AncillaryUserRepository>();
 
 // Add Swagger
 builder.Services.SwaggerDocument(o =>
