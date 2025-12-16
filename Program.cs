@@ -191,7 +191,7 @@ app.MapGet("/health", (HttpContext httpContext) =>
     return Results.Ok(response);
 }).AllowAnonymous();
 
-app.MapGet("/", () => Results.Redirect("/swagger/v1/swagger.json")).AllowAnonymous();
+app.MapGet("/", () => Results.Redirect("/swagger/v1/swagger.json", permanent: false)).AllowAnonymous();
 
 try
 {
