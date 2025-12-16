@@ -34,7 +34,7 @@ public class GetContactEntitiesEndpoint : Endpoint<GetContactEntitiesRequest, Li
     public override void Configure()
     {
         Get("/contacts/{id}/entities");
-        AllowAnonymous();
+        Policies("ReadAccess");
         Options(x => x
             .WithTags("Contacts")
             .WithSummary("Get contact user's associated entities")

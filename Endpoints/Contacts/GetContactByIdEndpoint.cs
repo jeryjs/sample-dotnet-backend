@@ -34,7 +34,7 @@ public class GetContactByIdEndpoint : Endpoint<GetContactByIdRequest, ContactUse
     public override void Configure()
     {
         Get("/contacts/{id}");
-        AllowAnonymous();
+        Policies("ReadAccess");
         Options(x => x
             .WithTags("Contacts")
             .WithSummary("Get contact user by ID")

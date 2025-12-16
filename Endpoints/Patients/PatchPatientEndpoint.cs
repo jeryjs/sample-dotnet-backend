@@ -65,7 +65,7 @@ public class PatchPatientEndpoint : Endpoint<PatchPatientRequest, PatchPatientRe
     public override void Configure()
     {
         Patch("/patients/{id}");
-        AllowAnonymous();
+        Policies("WriteAccess");
         Options(x => x
             .WithTags("Patients")
             .WithSummary("Partially update a patient")

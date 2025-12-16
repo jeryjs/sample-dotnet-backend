@@ -44,7 +44,7 @@ public class SearchContactsEndpoint : Endpoint<SearchContactsRequest, List<Conta
     public override void Configure()
     {
         Get("/search/contacts");
-        AllowAnonymous();
+        Policies("ReadAccess");
         Options(x => x
             .WithTags("Contacts")
             .WithSummary("Search contact users")

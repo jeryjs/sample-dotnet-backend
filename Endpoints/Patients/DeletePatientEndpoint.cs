@@ -40,7 +40,7 @@ public class DeletePatientEndpoint : Endpoint<DeletePatientRequest, DeletePatien
     public override void Configure()
     {
         Delete("/patients/{id}");
-        AllowAnonymous();
+        Policies("WriteAccess");
         Options(x => x
             .WithTags("Patients")
             .WithSummary("Delete a patient")

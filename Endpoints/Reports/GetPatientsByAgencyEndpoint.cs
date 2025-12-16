@@ -96,7 +96,7 @@ public class GetPatientsByAgencyEndpoint : EndpointWithoutRequest<PatientsByAgen
     public override void Configure()
     {
         Get("/reports/patients-by-agency");
-        AllowAnonymous();
+        Policies("ReadAccess");
         Options(x => x
             .WithTags("Reports")
             .WithSummary("Get patients grouped by agency")

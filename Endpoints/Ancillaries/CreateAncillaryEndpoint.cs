@@ -125,7 +125,7 @@ public class CreateAncillaryEndpoint : Endpoint<CreateAncillaryRequest, CreateAn
     public override void Configure()
     {
         Post("/ancillaries");
-        AllowAnonymous();
+        Policies("WriteAccess");
         Options(x => x
             .WithTags("Ancillaries")
             .WithSummary("Create a new ancillary user")

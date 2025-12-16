@@ -49,7 +49,7 @@ public class GetAncillaryStatsEndpoint : EndpointWithoutRequest<AncillaryStatsRe
     public override void Configure()
     {
         Get("/stats/ancillaries");
-        AllowAnonymous();
+        Policies("ReadAccess");
         Options(x => x
             .WithTags("Stats")
             .WithSummary("Get ancillary statistics")

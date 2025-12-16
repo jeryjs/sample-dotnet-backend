@@ -49,7 +49,7 @@ public class GetPatientStatsEndpoint : EndpointWithoutRequest<PatientStatsRespon
     public override void Configure()
     {
         Get("/stats/patients");
-        AllowAnonymous();
+        Policies("ReadAccess");
         Options(x => x
             .WithTags("Stats")
             .WithSummary("Get patient statistics")

@@ -117,7 +117,7 @@ public class BulkCreatePatientsEndpoint : Endpoint<BulkCreatePatientsRequest, Bu
     public override void Configure()
     {
         Post("/bulk/patients");
-        AllowAnonymous();
+        Policies("WriteAccess");
         Options(x => x
             .WithTags("Bulk Operations")
             .WithSummary("Bulk create patients")

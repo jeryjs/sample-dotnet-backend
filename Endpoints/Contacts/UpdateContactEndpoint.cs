@@ -106,7 +106,7 @@ public class UpdateContactEndpoint : Endpoint<UpdateContactRequest, UpdateContac
     public override void Configure()
     {
         Put("/contacts/{id}");
-        AllowAnonymous();
+        Policies("WriteAccess");
         Options(x => x
             .WithTags("Contacts")
             .WithSummary("Update a contact user")

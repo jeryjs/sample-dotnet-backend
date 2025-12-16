@@ -49,7 +49,7 @@ public class SearchPatientsEndpoint : Endpoint<SearchPatientsRequest, List<Patie
     public override void Configure()
     {
         Get("/search/patients");
-        AllowAnonymous();
+        Policies("ReadAccess");
         Options(x => x
             .WithTags("Patients")
             .WithSummary("Search patients")

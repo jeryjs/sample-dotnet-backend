@@ -44,7 +44,7 @@ public class SearchAncillariesEndpoint : Endpoint<SearchAncillariesRequest, List
     public override void Configure()
     {
         Get("/search/ancillaries");
-        AllowAnonymous();
+        Policies("ReadAccess");
         Options(x => x
             .WithTags("Ancillaries")
             .WithSummary("Search ancillary users")

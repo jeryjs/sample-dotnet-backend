@@ -46,7 +46,7 @@ public class AddContactEntityEndpoint : Endpoint<AddContactEntityRequest, AddCon
     public override void Configure()
     {
         Post("/contacts/{id}/entities");
-        AllowAnonymous();
+        Policies("WriteAccess");
         Options(x => x
             .WithTags("Contacts")
             .WithSummary("Add an associated entity to a contact user")

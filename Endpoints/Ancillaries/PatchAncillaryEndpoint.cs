@@ -120,7 +120,7 @@ public class PatchAncillaryEndpoint : Endpoint<PatchAncillaryRequest, PatchAncil
     public override void Configure()
     {
         Patch("/ancillaries/{id}");
-        AllowAnonymous();
+        Policies("WriteAccess");
         Options(x => x
             .WithTags("Ancillaries")
             .WithSummary("Partially update an ancillary user")

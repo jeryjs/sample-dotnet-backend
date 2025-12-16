@@ -34,7 +34,7 @@ public class GetPatientByIdEndpoint : Endpoint<GetPatientByIdRequest, Patient>
     public override void Configure()
     {
         Get("/patients/{id}");
-        AllowAnonymous();
+        Policies("ReadAccess");
         Options(x => x
             .WithTags("Patients")
             .WithSummary("Get patient by ID")

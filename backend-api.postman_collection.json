@@ -4,10 +4,75 @@
     "description": "Comprehensive API collection for Backend API Phase 1",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
+  "auth": {
+    "type": "oauth2",
+    "oauth2": [
+      {
+        "key": "clientId",
+        "value": "{{clientId}}",
+        "type": "string"
+      },
+      {
+        "key": "accessTokenUrl",
+        "value": "{{tokenUrl}}",
+        "type": "string"
+      },
+      {
+        "key": "authUrl",
+        "value": "{{authUrl}}",
+        "type": "string"
+      },
+      {
+        "key": "scope",
+        "value": "{{scope}}",
+        "type": "string"
+      },
+      {
+        "key": "grant_type",
+        "value": "authorization_code_with_pkce",
+        "type": "string"
+      },
+      {
+        "key": "clientAuthentication",
+        "value": "header",
+        "type": "string"
+      },
+      {
+        "key": "addTokenTo",
+        "value": "header",
+        "type": "string"
+      }
+    ]
+  },
   "variable": [
     {
       "key": "baseUrl",
       "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "tenant",
+      "value": "41187e1f-0e9a-40b2-b737-898908731b5f",
+      "type": "string"
+    },
+    {
+      "key": "clientId",
+      "value": "361d105e-3c1d-4f0a-a62d-a83ac961dc2f",
+      "type": "string"
+    },
+    {
+      "key": "scope",
+      "value": "api://361d105e-3c1d-4f0a-a62d-a83ac961dc2f/.default",
+      "type": "string"
+    },
+    {
+      "key": "authUrl",
+      "value": "https://login.microsoftonline.com/{{tenant}}/oauth2/v2.0/authorize",
+      "type": "string"
+    },
+    {
+      "key": "tokenUrl",
+      "value": "https://login.microsoftonline.com/{{tenant}}/oauth2/v2.0/token",
       "type": "string"
     }
   ],

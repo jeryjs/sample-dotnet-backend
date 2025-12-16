@@ -65,7 +65,7 @@ public class CreatePatientEndpoint : Endpoint<CreatePatientRequest, CreatePatien
     public override void Configure()
     {
         Post("/patients");
-        AllowAnonymous();
+        Policies("WriteAccess");
         Options(x => x
             .WithTags("Patients")
             .WithSummary("Create a new patient")

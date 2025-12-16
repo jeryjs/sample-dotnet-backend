@@ -23,7 +23,7 @@ public class GetAllContactsEndpoint : EndpointWithoutRequest<List<ContactUser>>
     public override void Configure()
     {
         Get("/contacts");
-        AllowAnonymous();
+        Policies("ReadAccess");
         Options(x => x
             .WithTags("Contacts")
             .WithSummary("Get all contact users")

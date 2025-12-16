@@ -100,7 +100,7 @@ public class PatchContactEndpoint : Endpoint<PatchContactRequest, PatchContactRe
     public override void Configure()
     {
         Patch("/contacts/{id}");
-        AllowAnonymous();
+        Policies("WriteAccess");
         Options(x => x
             .WithTags("Contacts")
             .WithSummary("Partially update a contact user")

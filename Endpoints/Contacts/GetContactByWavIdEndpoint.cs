@@ -34,7 +34,7 @@ public class GetContactByWavIdEndpoint : Endpoint<GetContactByWavIdRequest, Cont
     public override void Configure()
     {
         Get("/contacts/wavid/{wavId}");
-        AllowAnonymous();
+        Policies("ReadAccess");
         Options(x => x
             .WithTags("Contacts")
             .WithSummary("Get contact user by WAV ID")

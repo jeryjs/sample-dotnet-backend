@@ -66,7 +66,7 @@ public class UpdatePatientEndpoint : Endpoint<UpdatePatientRequest, UpdatePatien
     public override void Configure()
     {
         Put("/patients/{id}");
-        AllowAnonymous();
+        Policies("WriteAccess");
         Options(x => x
             .WithTags("Patients")
             .WithSummary("Update a patient")

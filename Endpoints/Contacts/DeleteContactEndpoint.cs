@@ -40,7 +40,7 @@ public class DeleteContactEndpoint : Endpoint<DeleteContactRequest, DeleteContac
     public override void Configure()
     {
         Delete("/contacts/{id}");
-        AllowAnonymous();
+        Policies("WriteAccess");
         Options(x => x
             .WithTags("Contacts")
             .WithSummary("Delete a contact user")

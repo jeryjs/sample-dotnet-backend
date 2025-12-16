@@ -131,7 +131,7 @@ public class UpdateAncillaryEndpoint : Endpoint<UpdateAncillaryRequest, UpdateAn
     public override void Configure()
     {
         Put("/ancillaries/{id}");
-        AllowAnonymous();
+        Policies("WriteAccess");
         Options(x => x
             .WithTags("Ancillaries")
             .WithSummary("Update an ancillary user")

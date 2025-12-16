@@ -34,7 +34,7 @@ public class GetAncillaryByWavIdEndpoint : Endpoint<GetAncillaryByWavIdRequest, 
     public override void Configure()
     {
         Get("/ancillaries/wavid/{wavId}");
-        AllowAnonymous();
+        Policies("ReadAccess");
         Options(x => x
             .WithTags("Ancillaries")
             .WithSummary("Get ancillary user by WAV ID")

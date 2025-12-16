@@ -106,7 +106,7 @@ public class GetAncillariesByDivisionEndpoint : EndpointWithoutRequest<Ancillari
     public override void Configure()
     {
         Get("/reports/ancillaries-by-division");
-        AllowAnonymous();
+        Policies("ReadAccess");
         Options(x => x
             .WithTags("Reports")
             .WithSummary("Get ancillaries grouped by division")

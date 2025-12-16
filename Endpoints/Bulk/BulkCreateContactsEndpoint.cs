@@ -136,7 +136,7 @@ public class BulkCreateContactsEndpoint : Endpoint<BulkCreateContactsRequest, Bu
     public override void Configure()
     {
         Post("/bulk/contacts");
-        AllowAnonymous();
+        Policies("WriteAccess");
         Options(x => x
             .WithTags("Bulk Operations")
             .WithSummary("Bulk create contacts")

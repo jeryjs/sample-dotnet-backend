@@ -46,7 +46,7 @@ public class AddAncillaryEntityEndpoint : Endpoint<AddAncillaryEntityRequest, Ad
     public override void Configure()
     {
         Post("/ancillaries/{id}/entities");
-        AllowAnonymous();
+        Policies("WriteAccess");
         Options(x => x
             .WithTags("Ancillaries")
             .WithSummary("Add an associated entity to an ancillary user")

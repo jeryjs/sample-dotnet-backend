@@ -44,7 +44,7 @@ public class GetPatientDiagnosesEndpoint : Endpoint<GetPatientDiagnosesRequest, 
     public override void Configure()
     {
         Get("/patients/{id}/diagnoses");
-        AllowAnonymous();
+        Policies("ReadAccess");
         Options(x => x
             .WithTags("Patients")
             .WithSummary("Get patient diagnoses")

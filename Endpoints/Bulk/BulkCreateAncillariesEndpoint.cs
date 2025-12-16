@@ -161,7 +161,7 @@ public class BulkCreateAncillariesEndpoint : Endpoint<BulkCreateAncillariesReque
     public override void Configure()
     {
         Post("/bulk/ancillaries");
-        AllowAnonymous();
+        Policies("WriteAccess");
         Options(x => x
             .WithTags("Bulk Operations")
             .WithSummary("Bulk create ancillaries")

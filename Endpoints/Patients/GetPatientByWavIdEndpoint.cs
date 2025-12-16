@@ -34,7 +34,7 @@ public class GetPatientByWavIdEndpoint : Endpoint<GetPatientByWavIdRequest, Pati
     public override void Configure()
     {
         Get("/patients/wavid/{wavId}");
-        AllowAnonymous();
+        Policies("ReadAccess");
         Options(x => x
             .WithTags("Patients")
             .WithSummary("Get patient by WAV ID")

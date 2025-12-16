@@ -20,6 +20,13 @@ services:
       - DataFiles__PatientsDataPath=/data/all_patients_data_f.json
       - DataFiles__ActiveAncillaryUsersPath=/data/getActiveAncillaryUsers.json
       - DataFiles__ActiveContactUsersPath=/data/getActiveContactUsers.json
+      # Azure AD Authentication Configuration
+      # Use .env file or Docker secrets in production. DO NOT hardcode secrets here.
+      - AzureAd__TenantId=${AZURE_AD__TENANTID:-your-tenant-id}
+      - AzureAd__ClientId=${AZURE_AD__CLIENTID:-your-client-id}
+      - AzureAd__ClientSecret=${AZURE_AD__CLIENTSECRET:-your-client-secret}
+      - AzureAd__Instance=${AZURE_AD__INSTANCE:-https://login.microsoftonline.com/}
+      - AzureAd__Audience=${AZURE_AD__AUDIENCE:-api://your-api-id}
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
@@ -52,6 +59,13 @@ services:
       - DataFiles__ActiveAncillaryUsersPath=/data/getActiveAncillaryUsers.json
       - DataFiles__ActiveContactUsersPath=/data/getActiveContactUsers.json
       - DOTNET_USE_POLLING_FILE_WATCHER=1
+      # Azure AD Authentication Configuration
+      # Use .env file or Docker secrets in production. DO NOT hardcode secrets here.
+      - AzureAd__TenantId=${AZURE_AD__TENANTID:-your-tenant-id}
+      - AzureAd__ClientId=${AZURE_AD__CLIENTID:-your-client-id}
+      - AzureAd__ClientSecret=${AZURE_AD__CLIENTSECRET:-your-client-secret}
+      - AzureAd__Instance=${AZURE_AD__INSTANCE:-https://login.microsoftonline.com/}
+      - AzureAd__Audience=${AZURE_AD__AUDIENCE:-api://your-api-id}
     restart: unless-stopped
 
 networks:

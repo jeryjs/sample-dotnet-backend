@@ -57,7 +57,7 @@ public class AddPatientDiagnosisEndpoint : Endpoint<AddPatientDiagnosisRequest, 
     public override void Configure()
     {
         Post("/patients/{id}/diagnoses");
-        AllowAnonymous();
+        Policies("WriteAccess");
         Options(x => x
             .WithTags("Patients")
             .WithSummary("Add a diagnosis to a patient")

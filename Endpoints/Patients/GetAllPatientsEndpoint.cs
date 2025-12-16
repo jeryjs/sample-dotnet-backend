@@ -23,7 +23,7 @@ public class GetAllPatientsEndpoint : EndpointWithoutRequest<List<Patient>>
     public override void Configure()
     {
         Get("/patients");
-        AllowAnonymous();
+        Policies("ReadAccess");
         Options(x => x
             .WithTags("Patients")
             .WithSummary("Get all patients")

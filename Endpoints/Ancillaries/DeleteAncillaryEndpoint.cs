@@ -40,7 +40,7 @@ public class DeleteAncillaryEndpoint : Endpoint<DeleteAncillaryRequest, DeleteAn
     public override void Configure()
     {
         Delete("/ancillaries/{id}");
-        AllowAnonymous();
+        Policies("WriteAccess");
         Options(x => x
             .WithTags("Ancillaries")
             .WithSummary("Delete an ancillary user")

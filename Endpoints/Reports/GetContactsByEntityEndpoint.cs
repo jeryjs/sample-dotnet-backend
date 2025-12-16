@@ -106,7 +106,7 @@ public class GetContactsByEntityEndpoint : EndpointWithoutRequest<ContactsByEnti
     public override void Configure()
     {
         Get("/reports/contacts-by-entity");
-        AllowAnonymous();
+        Policies("ReadAccess");
         Options(x => x
             .WithTags("Reports")
             .WithSummary("Get contacts grouped by entity")

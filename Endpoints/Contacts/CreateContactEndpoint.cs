@@ -100,7 +100,7 @@ public class CreateContactEndpoint : Endpoint<CreateContactRequest, CreateContac
     public override void Configure()
     {
         Post("/contacts");
-        AllowAnonymous();
+        Policies("WriteAccess");
         Options(x => x
             .WithTags("Contacts")
             .WithSummary("Create a new contact user")

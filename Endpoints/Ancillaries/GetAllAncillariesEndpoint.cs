@@ -23,7 +23,7 @@ public class GetAllAncillariesEndpoint : EndpointWithoutRequest<List<AncillaryUs
     public override void Configure()
     {
         Get("/ancillaries");
-        AllowAnonymous();
+        Policies("ReadAccess");
         Options(x => x
             .WithTags("Ancillaries")
             .WithSummary("Get all ancillary users")

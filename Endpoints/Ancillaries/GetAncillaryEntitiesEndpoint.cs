@@ -34,7 +34,7 @@ public class GetAncillaryEntitiesEndpoint : Endpoint<GetAncillaryEntitiesRequest
     public override void Configure()
     {
         Get("/ancillaries/{id}/entities");
-        AllowAnonymous();
+        Policies("ReadAccess");
         Options(x => x
             .WithTags("Ancillaries")
             .WithSummary("Get ancillary user's associated entities")

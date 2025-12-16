@@ -81,3 +81,10 @@ ScaffoldingReadMe.txt
 *.cache
 *.swp
 *~
+
+# Environment variables (contains secrets)
+.env
+
+# User secrets
+UserSecrets/
+**/UserSecrets/
