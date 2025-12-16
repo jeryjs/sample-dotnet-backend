@@ -45,6 +45,10 @@ public class PatientJsonLoader
         
         try
         {
+            if (File.Exists("/app/files/all_patients_data_f.json"))
+            {
+                filePath = "/app/files/all_patients_data_f.json";
+            }
             if (!File.Exists(filePath))
             {
                 _logger.LogWarning("Patient data file not found: {FilePath}", filePath);
