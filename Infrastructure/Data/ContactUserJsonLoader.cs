@@ -22,6 +22,38 @@ public class ContactUserJsonLoader
             AllowTrailingCommas = true,
             ReadCommentHandling = JsonCommentHandling.Skip
         };
+        _jsonOptions.Converters.Add(new GuidJsonConverter(_logger));
+    }
+    
+    /// <summary>
+    /// Custom converter to handle Guid values that may be in non-standard formats.
+    /// </summary>
+    public class GuidJsonConverter : System.Text.Json.Serialization.JsonConverter<Guid>
+    {
+        private readonly ILogger _logger;
+
+        public GuidJsonConverter(ILogger logger)
+        {
+            _logger = logger;
+        }
+
+        public override Guid Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            var str = reader.GetString();
+            if (reader.TokenType == JsonTokenType.String)
+            {
+                if (Guid.TryParse(str, out var guid))
+                    return guid;
+            }
+            // throw new JsonException("Invalid GUID format.");
+            _logger?.LogWarning("Failed to parse GUID value: {Value}", str);
+            return Guid.Empty;
+        }
+    
+        public override void Write(Utf8JsonWriter writer, Guid value, JsonSerializerOptions options)
+        {
+            writer.WriteStringValue(value.ToString());
+        }
     }
 
     /// <summary>
