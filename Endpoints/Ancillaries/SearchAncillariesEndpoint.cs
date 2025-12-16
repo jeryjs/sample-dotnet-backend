@@ -1,6 +1,8 @@
 using FastEndpoints;
 using backend_api.Domain.Models;
 using BackendApi.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BackendApi.Endpoints.Ancillaries;
 
@@ -48,7 +50,7 @@ public class SearchAncillariesEndpoint : Endpoint<SearchAncillariesRequest, List
             .WithSummary("Search ancillary users")
             .WithDescription("Search for ancillary users by name, entity type, or state")
             .Produces<List<AncillaryUser>>(200, "application/json")
-            .Produces(500, "application/json"));
+            .Produces(StatusCodes.Status500InternalServerError, typeof(ProblemDetails)));
     }
 
     public override async Task HandleAsync(SearchAncillariesRequest req, CancellationToken ct)

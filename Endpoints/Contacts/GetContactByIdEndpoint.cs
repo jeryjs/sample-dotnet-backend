@@ -1,6 +1,8 @@
 using FastEndpoints;
 using backend_api.Domain.Models;
 using BackendApi.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BackendApi.Endpoints.Contacts;
 
@@ -38,8 +40,8 @@ public class GetContactByIdEndpoint : Endpoint<GetContactByIdRequest, ContactUse
             .WithSummary("Get contact user by ID")
             .WithDescription("Retrieves a specific contact user by their unique identifier")
             .Produces<ContactUser>(200, "application/json")
-            .Produces(404, "application/json")
-            .Produces(500, "application/json"));
+            .Produces(StatusCodes.Status404NotFound, typeof(ProblemDetails))
+            .Produces(StatusCodes.Status500InternalServerError, typeof(ProblemDetails)));
     }
 
     public override async Task HandleAsync(GetContactByIdRequest req, CancellationToken ct)

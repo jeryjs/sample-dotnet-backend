@@ -1,6 +1,8 @@
 using FastEndpoints;
 using backend_api.Domain.Models;
 using BackendApi.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BackendApi.Endpoints.Reports;
 
@@ -110,7 +112,7 @@ public class GetContactsByEntityEndpoint : EndpointWithoutRequest<ContactsByEnti
             .WithSummary("Get contacts grouped by entity")
             .WithDescription("Retrieves all contacts grouped by their associated entity with summary information")
             .Produces<ContactsByEntityResponse>(200, "application/json")
-            .Produces(500, "application/json"));
+            .Produces(StatusCodes.Status500InternalServerError, typeof(ProblemDetails)));
     }
 
     public override async Task HandleAsync(CancellationToken ct)
@@ -123,9 +125,9 @@ public class GetContactsByEntityEndpoint : EndpointWithoutRequest<ContactsByEnti
             
             // Flatten contacts with their associated entities
             var contactEntityPairs = contacts
-                .SelectMany(c => c.AssociatedEntities.Any() 
-                    ? c.AssociatedEntities.Select(e => new { Contact = c, Entity = e })
-                    : new[] { new { Contact = c, Entity = (AssociatedEntity?)null } })
+                .SelectMany(contact => contact.AssociatedEntities
+                    .Where(entity => entity is not null)
+                    .Select(entity => new { Contact = contact, Entity = entity! }))
                 .ToList();
             
             var groups = contactEntityPairs

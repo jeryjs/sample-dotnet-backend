@@ -1,6 +1,8 @@
 using FastEndpoints;
 using backend_api.Domain.Models;
 using BackendApi.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BackendApi.Endpoints.Reports;
 
@@ -100,7 +102,7 @@ public class GetPatientsByAgencyEndpoint : EndpointWithoutRequest<PatientsByAgen
             .WithSummary("Get patients grouped by agency")
             .WithDescription("Retrieves all patients grouped by their agency name with summary information")
             .Produces<PatientsByAgencyResponse>(200, "application/json")
-            .Produces(500, "application/json"));
+            .Produces(StatusCodes.Status500InternalServerError, typeof(ProblemDetails)));
     }
 
     public override async Task HandleAsync(CancellationToken ct)

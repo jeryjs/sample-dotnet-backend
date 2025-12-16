@@ -1,6 +1,8 @@
 using FastEndpoints;
 using backend_api.Domain.Models;
 using BackendApi.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BackendApi.Endpoints.Reports;
 
@@ -110,7 +112,7 @@ public class GetAncillariesByDivisionEndpoint : EndpointWithoutRequest<Ancillari
             .WithSummary("Get ancillaries grouped by division")
             .WithDescription("Retrieves all ancillaries grouped by their division (entity subtype) with summary information")
             .Produces<AncillariesByDivisionResponse>(200, "application/json")
-            .Produces(500, "application/json"));
+            .Produces(StatusCodes.Status500InternalServerError, typeof(ProblemDetails)));
     }
 
     public override async Task HandleAsync(CancellationToken ct)

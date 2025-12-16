@@ -1,6 +1,8 @@
 using FastEndpoints;
 using backend_api.Domain.Models;
 using BackendApi.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BackendApi.Endpoints.Patients;
 
@@ -38,8 +40,8 @@ public class GetPatientByIdEndpoint : Endpoint<GetPatientByIdRequest, Patient>
             .WithSummary("Get patient by ID")
             .WithDescription("Retrieves a specific patient by their unique identifier")
             .Produces<Patient>(200, "application/json")
-            .Produces(404, "application/json")
-            .Produces(500, "application/json"));
+            .Produces(StatusCodes.Status404NotFound, typeof(ProblemDetails))
+            .Produces(StatusCodes.Status500InternalServerError, typeof(ProblemDetails)));
     }
 
     public override async Task HandleAsync(GetPatientByIdRequest req, CancellationToken ct)

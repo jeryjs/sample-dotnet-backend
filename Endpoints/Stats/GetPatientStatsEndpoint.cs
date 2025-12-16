@@ -1,6 +1,8 @@
 using FastEndpoints;
 using backend_api.Domain.Models;
 using BackendApi.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BackendApi.Endpoints.Stats;
 
@@ -53,7 +55,7 @@ public class GetPatientStatsEndpoint : EndpointWithoutRequest<PatientStatsRespon
             .WithSummary("Get patient statistics")
             .WithDescription("Retrieves aggregated statistics for patients including total count, active/inactive split, and breakdown by state")
             .Produces<PatientStatsResponse>(200, "application/json")
-            .Produces(500, "application/json"));
+            .Produces(StatusCodes.Status500InternalServerError, typeof(ProblemDetails)));
     }
 
     public override async Task HandleAsync(CancellationToken ct)

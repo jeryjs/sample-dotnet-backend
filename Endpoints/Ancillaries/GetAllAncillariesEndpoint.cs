@@ -1,6 +1,8 @@
 using FastEndpoints;
 using backend_api.Domain.Models;
 using BackendApi.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BackendApi.Endpoints.Ancillaries;
 
@@ -27,7 +29,7 @@ public class GetAllAncillariesEndpoint : EndpointWithoutRequest<List<AncillaryUs
             .WithSummary("Get all ancillary users")
             .WithDescription("Retrieves all ancillary users from the system without pagination")
             .Produces<List<AncillaryUser>>(200, "application/json")
-            .Produces(500, "application/json"));
+            .Produces(StatusCodes.Status500InternalServerError, typeof(ProblemDetails)));
     }
 
     public override async Task HandleAsync(CancellationToken ct)

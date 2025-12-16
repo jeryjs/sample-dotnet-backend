@@ -1,6 +1,8 @@
 using FastEndpoints;
 using backend_api.Domain.Models;
 using BackendApi.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BackendApi.Endpoints.Ancillaries;
 
@@ -38,8 +40,8 @@ public class GetAncillaryByIdEndpoint : Endpoint<GetAncillaryByIdRequest, Ancill
             .WithSummary("Get ancillary user by ID")
             .WithDescription("Retrieves a specific ancillary user by their unique identifier")
             .Produces<AncillaryUser>(200, "application/json")
-            .Produces(404, "application/json")
-            .Produces(500, "application/json"));
+            .Produces(StatusCodes.Status404NotFound, typeof(ProblemDetails))
+            .Produces(StatusCodes.Status500InternalServerError, typeof(ProblemDetails)));
     }
 
     public override async Task HandleAsync(GetAncillaryByIdRequest req, CancellationToken ct)

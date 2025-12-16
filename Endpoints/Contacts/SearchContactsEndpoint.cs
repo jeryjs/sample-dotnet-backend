@@ -1,6 +1,8 @@
 using FastEndpoints;
 using backend_api.Domain.Models;
 using BackendApi.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BackendApi.Endpoints.Contacts;
 
@@ -48,7 +50,7 @@ public class SearchContactsEndpoint : Endpoint<SearchContactsRequest, List<Conta
             .WithSummary("Search contact users")
             .WithDescription("Search for contact users by first name, last name, or job title")
             .Produces<List<ContactUser>>(200, "application/json")
-            .Produces(500, "application/json"));
+            .Produces(StatusCodes.Status500InternalServerError, typeof(ProblemDetails)));
     }
 
     public override async Task HandleAsync(SearchContactsRequest req, CancellationToken ct)
