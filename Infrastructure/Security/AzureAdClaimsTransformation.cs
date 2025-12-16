@@ -102,7 +102,7 @@ public class AzureAdClaimsTransformation : IClaimsTransformation
                 }
             }
 
-            if (addedRoles.Any())
+            if (addedRoles.Count != 0)
             {
                 _logger.LogInformation(
                     "Added roles {Roles} for user {User}",
@@ -152,7 +152,7 @@ public class AzureAdClaimsTransformation : IClaimsTransformation
     /// <summary>
     /// Gets a user identifier for logging purposes
     /// </summary>
-    private string GetUserIdentifier(ClaimsPrincipal principal)
+    private static string GetUserIdentifier(ClaimsPrincipal principal)
     {
         return principal.FindFirst("preferred_username")?.Value
             ?? principal.FindFirst("email")?.Value

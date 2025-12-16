@@ -1,7 +1,7 @@
 {
   "info": {
-    "name": "Backend API Phase 1",
-    "description": "Comprehensive API collection for Backend API Phase 1",
+    "name": "Backend API",
+    "description": "Comprehensive API collection for Backend API",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {

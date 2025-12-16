@@ -121,7 +121,7 @@ public class BulkCreatePatientsEndpoint : Endpoint<BulkCreatePatientsRequest, Bu
         Options(x => x
             .WithTags("Bulk Operations")
             .WithSummary("Bulk create patients")
-            .WithDescription("Creates multiple patients in a single operation. Phase 1: Returns 501 Not Implemented. This endpoint will be implemented in future phases to support batch patient creation.")
+            .WithDescription("Creates multiple patients in a single operation. Currently returns 501 Not Implemented.")
             .Produces<BulkCreatePatientsResponse>(201, "application/json")
             .Produces<BulkCreatePatientsResponse>(400, "application/json")
             .Produces<BulkCreatePatientsResponse>(501, "application/json")
@@ -149,16 +149,15 @@ public class BulkCreatePatientsEndpoint : Endpoint<BulkCreatePatientsRequest, Bu
                 return;
             }
 
-            // Phase 1: Not implemented yet
             var response = new BulkCreatePatientsResponse
             {
                 Success = false,
-                Message = "Bulk patient creation not yet implemented. Repository is currently read-only. This feature will be available in future phases.",
+                Message = "Bulk patient creation is not implemented. Repository is currently read-only.",
                 CreatedCount = 0,
                 ErrorCount = 0
             };
 
-            _logger.LogWarning("Bulk patient creation attempted but not yet implemented (Phase 1). Request contained {Count} patients", req.Patients.Count);
+            _logger.LogWarning("Bulk patient creation attempted but not implemented. Request contained {Count} patients", req.Patients.Count);
 
             await SendAsync(response, 501, ct); // 501 Not Implemented
         }

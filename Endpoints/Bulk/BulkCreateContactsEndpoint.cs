@@ -140,7 +140,7 @@ public class BulkCreateContactsEndpoint : Endpoint<BulkCreateContactsRequest, Bu
         Options(x => x
             .WithTags("Bulk Operations")
             .WithSummary("Bulk create contacts")
-            .WithDescription("Creates multiple contacts in a single operation. Phase 1: Returns 501 Not Implemented. This endpoint will be implemented in future phases to support batch contact creation.")
+            .WithDescription("Creates multiple contacts in a single operation. Currently returns 501 Not Implemented.")
             .Produces<BulkCreateContactsResponse>(201, "application/json")
             .Produces<BulkCreateContactsResponse>(400, "application/json")
             .Produces<BulkCreateContactsResponse>(501, "application/json")
@@ -168,16 +168,15 @@ public class BulkCreateContactsEndpoint : Endpoint<BulkCreateContactsRequest, Bu
                 return;
             }
 
-            // Phase 1: Not implemented yet
             var response = new BulkCreateContactsResponse
             {
                 Success = false,
-                Message = "Bulk contact creation not yet implemented. Repository is currently read-only. This feature will be available in future phases.",
+                Message = "Bulk contact creation is not implemented. Repository is currently read-only.",
                 CreatedCount = 0,
                 ErrorCount = 0
             };
 
-            _logger.LogWarning("Bulk contact creation attempted but not yet implemented (Phase 1). Request contained {Count} contacts", req.Contacts.Count);
+            _logger.LogWarning("Bulk contact creation attempted but not implemented. Request contained {Count} contacts", req.Contacts.Count);
 
             await SendAsync(response, 501, ct); // 501 Not Implemented
         }

@@ -96,20 +96,16 @@ public static class AuthExtensions
 
         logger.LogInformation("Configuring authorization policies...");
 
-        services.AddAuthorization(options =>
-        {
-            // AdminOnly policy - requires Admin role
-            options.AddPolicy("AdminOnly", policy =>
+        services.AddAuthorizationBuilder()
+            .AddPolicy("AdminOnly", policy =>
             {
                 policy.RequireAuthenticatedUser();
                 policy.RequireRole("Admin");
                 
                 logger.LogInformation(
                     "Policy 'AdminOnly' defined: Requires role 'Admin'");
-            });
-
-            // WriteAccess policy - requires api.write scope OR Admin/Writer role
-            options.AddPolicy("WriteAccess", policy =>
+            })
+            .AddPolicy("WriteAccess", policy =>
             {
                 policy.RequireAuthenticatedUser();
                 policy.RequireAssertion(context =>
@@ -128,10 +124,8 @@ public static class AuthExtensions
 
                 logger.LogInformation(
                     "Policy 'WriteAccess' defined: Requires scope 'api.write' OR role 'Admin' OR role 'Writer'");
-            });
-
-            // ReadAccess policy - requires api.read scope OR any authenticated user
-            options.AddPolicy("ReadAccess", policy =>
+            })
+            .AddPolicy("ReadAccess", policy =>
             {
                 policy.RequireAuthenticatedUser();
                 policy.RequireAssertion(context =>
@@ -150,7 +144,6 @@ public static class AuthExtensions
                 logger.LogInformation(
                     "Policy 'ReadAccess' defined: Requires scope 'api.read' OR any authenticated user");
             });
-        });
 
         logger.LogInformation("Authorization policies configured successfully");
 

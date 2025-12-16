@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using backend_api.Domain.Models;
 
 namespace BackendApi.Infrastructure.Data;
@@ -28,7 +29,7 @@ public class ContactUserJsonLoader
     /// <summary>
     /// Custom converter to handle Guid values that may be in non-standard formats.
     /// </summary>
-    public class GuidJsonConverter : System.Text.Json.Serialization.JsonConverter<Guid>
+    private sealed class GuidJsonConverter : JsonConverter<Guid>
     {
         private readonly ILogger _logger;
 
@@ -39,14 +40,15 @@ public class ContactUserJsonLoader
 
         public override Guid Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            var str = reader.GetString();
             if (reader.TokenType == JsonTokenType.String)
             {
-                if (Guid.TryParse(str, out var guid))
+                var str = reader.GetString();
+                if (!string.IsNullOrWhiteSpace(str) && Guid.TryParse(str, out var guid))
                     return guid;
+
+                _logger.LogWarning("Failed to parse GUID value: {Value}", str);
             }
-            // throw new JsonException("Invalid GUID format.");
-            _logger?.LogWarning("Failed to parse GUID value: {Value}", str);
+
             return Guid.Empty;
         }
     
@@ -67,10 +69,6 @@ public class ContactUserJsonLoader
         
         try
         {
-            if (File.Exists("/app/files/getActiveContactUsers.json"))
-            {
-                filePath = "/app/files/getActiveContactUsers.json";
-            }
             if (!File.Exists(filePath))
             {
                 _logger.LogWarning("Contact users data file not found: {FilePath}", filePath);

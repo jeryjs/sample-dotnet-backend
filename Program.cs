@@ -6,9 +6,8 @@ using BackendApi.Infrastructure.Data;
 using BackendApi.Infrastructure.Repositories;
 using BackendApi.Infrastructure.Security;
 
-var builder = WebApplication.CreateBuilder(args);
-
-// Load .env file for local development (search from current dir upward)
+// Load .env file for local development
+// Note: Environment variables must be set before CreateBuilder() so configuration providers can pick them up.
 var envPath = Path.Combine(Directory.GetCurrentDirectory(), ".env");
 if (File.Exists(envPath))
 {
@@ -34,14 +33,14 @@ if (File.Exists(envPath))
                 }
             }
         }
-        if (builder.Configuration is IConfigurationRoot cfgRoot)
-            cfgRoot.Reload();
     }
     catch (Exception ex)
     {
         Log.Warning(ex, "Error loading .env file");
     }
 }
+
+var builder = WebApplication.CreateBuilder(args);
 
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
@@ -84,14 +83,14 @@ builder.Services.SwaggerDocument(o =>
 {
     o.DocumentSettings = s =>
     {
-        s.Title = "Backend API - Phase 2 (Azure AD Auth)";
+        s.Title = "Backend API (Azure AD Auth)";
         s.Version = "v1";
         s.Description = "Production-ready ASP.NET Core 8 API with FastEndpoints and Azure AD authentication";
     };
     o.ShortSchemaNames = true;
 });
 
-// Add CORS - Allow all for Phase 1
+// Add CORS - Allow all
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>

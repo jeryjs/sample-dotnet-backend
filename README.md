@@ -125,7 +125,7 @@ Infrastructure/
 ## Notes
 
 - Read endpoints are public by default; write ops require `WriteAccess` policy
-- In-memory data storage (Phase 1); no DB layer
+- In-memory data storage; no DB layer
 - `.env` not committed (in `.gitignore`)
 - Logs to console (Serilog)
 - Health check at `/health` (includes auth status)

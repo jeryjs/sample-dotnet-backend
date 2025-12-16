@@ -35,10 +35,6 @@ public class AncillaryUserJsonLoader
         
         try
         {
-            if (File.Exists("/app/files/getActiveAncillaryUsers.json"))
-            {
-                filePath = "/app/files/getActiveAncillaryUsers.json";
-            }
             if (!File.Exists(filePath))
             {
                 _logger.LogWarning("Ancillary users data file not found: {FilePath}", filePath);

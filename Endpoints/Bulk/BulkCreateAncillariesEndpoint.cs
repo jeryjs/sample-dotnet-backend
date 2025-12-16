@@ -165,7 +165,7 @@ public class BulkCreateAncillariesEndpoint : Endpoint<BulkCreateAncillariesReque
         Options(x => x
             .WithTags("Bulk Operations")
             .WithSummary("Bulk create ancillaries")
-            .WithDescription("Creates multiple ancillaries in a single operation. Phase 1: Returns 501 Not Implemented. This endpoint will be implemented in future phases to support batch ancillary creation.")
+            .WithDescription("Creates multiple ancillaries in a single operation. Currently returns 501 Not Implemented.")
             .Produces<BulkCreateAncillariesResponse>(201, "application/json")
             .Produces<BulkCreateAncillariesResponse>(400, "application/json")
             .Produces<BulkCreateAncillariesResponse>(501, "application/json")
@@ -193,16 +193,15 @@ public class BulkCreateAncillariesEndpoint : Endpoint<BulkCreateAncillariesReque
                 return;
             }
 
-            // Phase 1: Not implemented yet
             var response = new BulkCreateAncillariesResponse
             {
                 Success = false,
-                Message = "Bulk ancillary creation not yet implemented. Repository is currently read-only. This feature will be available in future phases.",
+                Message = "Bulk ancillary creation is not implemented. Repository is currently read-only.",
                 CreatedCount = 0,
                 ErrorCount = 0
             };
 
-            _logger.LogWarning("Bulk ancillary creation attempted but not yet implemented (Phase 1). Request contained {Count} ancillaries", req.Ancillaries.Count);
+            _logger.LogWarning("Bulk ancillary creation attempted but not implemented. Request contained {Count} ancillaries", req.Ancillaries.Count);
 
             await SendAsync(response, 501, ct); // 501 Not Implemented
         }
