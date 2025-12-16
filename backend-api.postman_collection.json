@@ -57,12 +57,12 @@
     },
     {
       "key": "clientId",
-      "value": "361d105e-3c1d-4f0a-a62d-a83ac961dc2f",
+      "value": "096ab163-28e7-492b-9887-1846102f4956",
       "type": "string"
     },
     {
       "key": "scope",
-      "value": "api://361d105e-3c1d-4f0a-a62d-a83ac961dc2f/.default",
+      "value": "api://096ab163-28e7-492b-9887-1846102f4956/.default",
       "type": "string"
     },
     {

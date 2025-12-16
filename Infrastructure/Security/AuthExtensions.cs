@@ -25,11 +25,16 @@ public static class AuthExtensions
         // Configure JWT Bearer options for additional validation and logging
         services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
         {
+            // Read audience from config
+            var audience = config["AzureAd:Audience"] ?? config["AZURE_AD__AUDIENCE"] ?? string.Empty;
+            var clientId = config["AzureAd:ClientId"] ?? config["AZURE_AD__CLIENTID"] ?? string.Empty;
+
             // Token validation parameters
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = true,
                 ValidateAudience = true,
+                ValidAudiences = new[] { audience, clientId }.Where(a => !string.IsNullOrEmpty(a)).Distinct().ToArray(),
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
                 ClockSkew = TimeSpan.FromMinutes(5) // Allow 5 minute clock skew

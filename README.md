@@ -425,6 +425,8 @@ Follow these steps to register your application in Azure AD and configure authen
    - **State**: Enabled
    - Click **Add scope**
 
+**Tip:** After adding the scope, set `AZURE_AD__SCOPE` in your `.env` (or user-secrets) to `api://{clientId}/access_as_user`. The Authorize URL will request this explicit scope to avoid `invalid_resource` errors.
+
 ### Step 4: Define App Roles
 
 1. **Create App Roles**:

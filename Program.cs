@@ -8,6 +8,41 @@ using BackendApi.Infrastructure.Security;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Load .env file for local development (search from current dir upward)
+var envPath = Path.Combine(Directory.GetCurrentDirectory(), ".env");
+if (File.Exists(envPath))
+{
+    Log.Information("Loading environment variables from: {Path}", envPath);
+    try
+    {
+        foreach (var line in File.ReadAllLines(envPath))
+        {
+            if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#"))
+                continue;
+            
+            var parts = line.Split('=', 2);
+            if (parts.Length == 2)
+            {
+                var key = parts[0].Trim();
+                var value = parts[1].Trim();
+                
+                // Only set if not already in environment
+                if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable(key)))
+                {
+                    Environment.SetEnvironmentVariable(key, value);
+                    Log.Debug("Set environment variable: {Key}", key);
+                }
+            }
+        }
+        if (builder.Configuration is IConfigurationRoot cfgRoot)
+            cfgRoot.Reload();
+    }
+    catch (Exception ex)
+    {
+        Log.Warning(ex, "Error loading .env file");
+    }
+}
+
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
@@ -74,10 +109,10 @@ builder.Services.AddHealthChecks();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
-var app = builder.Build();
-
 // Register DevAuth middleware service (used if DEV_AUTH__ENABLED=true)
-builder.Services.AddSingleton<BackendApi.Infrastructure.Security.DevAuthMiddleware>();
+builder.Services.AddSingleton<DevAuthMiddleware>();
+
+var app = builder.Build();
 
 // Middleware pipeline order matters:
 // 1. RequestIdMiddleware - First, so all subsequent middleware can use the request ID
@@ -111,7 +146,7 @@ app.UseCors("AllowAll");
 var devAuthEnabled = builder.Configuration.GetValue<bool?>("DEV_AUTH__ENABLED") ?? false;
 if (devAuthEnabled)
 {
-    app.UseMiddleware<BackendApi.Infrastructure.Security.DevAuthMiddleware>();
+    app.UseMiddleware<DevAuthMiddleware>();
 }
 
 // Use Authentication & Authorization
