@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  backend-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: backend-api
+    ports:
+      - "5000:8080"
+    volumes:
+      # Mount JSON data files from parent directory
+      - ../all_patients_data_f.json:/data/all_patients_data_f.json:ro
+      - ../getActiveAncillaryUsers.json:/data/getActiveAncillaryUsers.json:ro
+      - ../getActiveContactUsers.json:/data/getActiveContactUsers.json:ro
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      # Update data file paths to use mounted volumes
+      - DataFiles__PatientsDataPath=/data/all_patients_data_f.json
+      - DataFiles__ActiveAncillaryUsersPath=/data/getActiveAncillaryUsers.json
+      - DataFiles__ActiveContactUsersPath=/data/getActiveContactUsers.json
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    networks:
+      - backend-network
+
+networks:
+  backend-network:
+    driver: bridge

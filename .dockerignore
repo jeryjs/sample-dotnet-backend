@@ -1,0 +1,92 @@
+# Build outputs
+bin/
+obj/
+out/
+publish/
+
+# Visual Studio / Rider
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa]rm/
+[Aa]rm64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# MSTest test Results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+# NUnit
+*.VisualState.xml
+TestResult.xml
+nunit-*.xml
+
+# Test Coverage
+coverage/
+*.coverage
+*.coveragexml
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Documentation
+README.md
+*.md
+
+# Package managers
+node_modules/
+packages/
+*.nuget.props
+*.nuget.targets
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+*.swp
+*.bak
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE specific
+*.code-workspace
+.history/
+
+# Postman
+*.postman_collection.json
+
+# Environment files
+.env
+.env.*
+
+# Backup files
+*.backup
+*.bak
+*~

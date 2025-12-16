@@ -1,0 +1,1644 @@
+{
+  "info": {
+    "name": "Backend API Phase 1",
+    "description": "Comprehensive API collection for Backend API Phase 1",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Checks",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Patients",
+      "item": [
+        {
+          "name": "Get All Patients",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/patients",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "patients"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is array\", function () {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Patient By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/patients/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "patients", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Patient ID"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Patient By WAV Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/patients/wav/:wavId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "patients", "wav", ":wavId"],
+              "variable": [
+                {
+                  "key": "wavId",
+                  "value": "WAV-001",
+                  "description": "Patient WAV ID"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Patient",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"dateOfBirth\": \"1990-01-01\",\n  \"gender\": \"Male\",\n  \"ssn\": \"123-45-6789\",\n  \"medicareNumber\": \"123456789A\",\n  \"address\": \"123 Main St\",\n  \"city\": \"New York\",\n  \"state\": \"NY\",\n  \"zipCode\": \"10001\",\n  \"phoneNumber\": \"555-1234\",\n  \"email\": \"john.doe@example.com\",\n  \"agencyId\": 1,\n  \"admissionDate\": \"2024-01-01\",\n  \"status\": \"Active\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/patients",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "patients"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has id\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Patient",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"dateOfBirth\": \"1990-01-01\",\n  \"gender\": \"Male\",\n  \"ssn\": \"123-45-6789\",\n  \"medicareNumber\": \"123456789A\",\n  \"address\": \"456 Oak Ave\",\n  \"city\": \"New York\",\n  \"state\": \"NY\",\n  \"zipCode\": \"10001\",\n  \"phoneNumber\": \"555-1234\",\n  \"email\": \"john.doe@example.com\",\n  \"agencyId\": 1,\n  \"admissionDate\": \"2024-01-01\",\n  \"status\": \"Active\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/patients/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "patients", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Patient ID"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Patch Patient",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"address\": \"789 Elm St\",\n  \"phoneNumber\": \"555-9999\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/patients/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "patients", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Patient ID"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Patient",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/patients/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "patients", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Patient ID"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 204 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([204, 404]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Search Patients",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/patients/search?query=John&agencyId=1&status=Active",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "patients", "search"],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "John",
+                  "description": "Search query"
+                },
+                {
+                  "key": "agencyId",
+                  "value": "1",
+                  "description": "Filter by agency ID"
+                },
+                {
+                  "key": "status",
+                  "value": "Active",
+                  "description": "Filter by status"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is array\", function () {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Patient Diagnoses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/patients/:id/diagnoses",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "patients", ":id", "diagnoses"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Patient ID"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Add Patient Diagnosis",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"diagnosisCode\": \"I10\",\n  \"description\": \"Essential (primary) hypertension\",\n  \"diagnosisDate\": \"2024-01-15\",\n  \"isPrimary\": true,\n  \"status\": \"Active\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/patients/:id/diagnoses",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "patients", ":id", "diagnoses"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Patient ID"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201, 404]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Contacts",
+      "item": [
+        {
+          "name": "Get All Contacts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/contacts",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "contacts"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is array\", function () {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Contact By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/contacts/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "contacts", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Contact ID"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Contact By WAV Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/contacts/wav/:wavId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "contacts", "wav", ":wavId"],
+              "variable": [
+                {
+                  "key": "wavId",
+                  "value": "WAV-C001",
+                  "description": "Contact WAV ID"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Contact",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Jane\",\n  \"lastName\": \"Smith\",\n  \"email\": \"jane.smith@example.com\",\n  \"phoneNumber\": \"555-5678\",\n  \"address\": \"123 Main St\",\n  \"city\": \"Los Angeles\",\n  \"state\": \"CA\",\n  \"zipCode\": \"90001\",\n  \"contactType\": \"Primary\",\n  \"status\": \"Active\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/contacts",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "contacts"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has id\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Contact",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"firstName\": \"Jane\",\n  \"lastName\": \"Smith\",\n  \"email\": \"jane.smith@example.com\",\n  \"phoneNumber\": \"555-9876\",\n  \"address\": \"456 Park Ave\",\n  \"city\": \"Los Angeles\",\n  \"state\": \"CA\",\n  \"zipCode\": \"90001\",\n  \"contactType\": \"Primary\",\n  \"status\": \"Active\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/contacts/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "contacts", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Contact ID"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Patch Contact",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumber\": \"555-1111\",\n  \"email\": \"jane.updated@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/contacts/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "contacts", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Contact ID"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Contact",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/contacts/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "contacts", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Contact ID"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 204 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([204, 404]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Search Contacts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/contacts/search?query=Jane&contactType=Primary&status=Active",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "contacts", "search"],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "Jane",
+                  "description": "Search query"
+                },
+                {
+                  "key": "contactType",
+                  "value": "Primary",
+                  "description": "Filter by contact type"
+                },
+                {
+                  "key": "status",
+                  "value": "Active",
+                  "description": "Filter by status"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is array\", function () {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Contact Entities",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/contacts/:id/entities",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "contacts", ":id", "entities"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Contact ID"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Add Contact Entity",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"entityType\": \"Agency\",\n  \"entityId\": 1,\n  \"entityName\": \"Healthcare Agency Inc\",\n  \"relationship\": \"Primary Contact\",\n  \"notes\": \"Main contact for this agency\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/contacts/:id/entities",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "contacts", ":id", "entities"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Contact ID"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201, 404]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Ancillaries",
+      "item": [
+        {
+          "name": "Get All Ancillaries",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/ancillaries",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ancillaries"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is array\", function () {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Ancillary By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/ancillaries/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ancillaries", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Ancillary ID"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Ancillary By WAV Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/ancillaries/wav/:wavId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ancillaries", "wav", ":wavId"],
+              "variable": [
+                {
+                  "key": "wavId",
+                  "value": "WAV-A001",
+                  "description": "Ancillary WAV ID"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Ancillary",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Michael\",\n  \"lastName\": \"Johnson\",\n  \"email\": \"michael.j@example.com\",\n  \"phoneNumber\": \"555-3456\",\n  \"specialty\": \"Physical Therapy\",\n  \"licenseNumber\": \"PT12345\",\n  \"divisionId\": 1,\n  \"status\": \"Active\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ancillaries",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ancillaries"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has id\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Ancillary",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"firstName\": \"Michael\",\n  \"lastName\": \"Johnson\",\n  \"email\": \"michael.j@example.com\",\n  \"phoneNumber\": \"555-7777\",\n  \"specialty\": \"Occupational Therapy\",\n  \"licenseNumber\": \"PT12345\",\n  \"divisionId\": 1,\n  \"status\": \"Active\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ancillaries/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ancillaries", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Ancillary ID"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Patch Ancillary",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumber\": \"555-8888\",\n  \"specialty\": \"Speech Therapy\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ancillaries/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ancillaries", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Ancillary ID"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Ancillary",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/ancillaries/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ancillaries", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Ancillary ID"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 204 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([204, 404]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Search Ancillaries",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/ancillaries/search?query=Michael&specialty=Physical Therapy&divisionId=1&status=Active",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ancillaries", "search"],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "Michael",
+                  "description": "Search query"
+                },
+                {
+                  "key": "specialty",
+                  "value": "Physical Therapy",
+                  "description": "Filter by specialty"
+                },
+                {
+                  "key": "divisionId",
+                  "value": "1",
+                  "description": "Filter by division ID"
+                },
+                {
+                  "key": "status",
+                  "value": "Active",
+                  "description": "Filter by status"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is array\", function () {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Ancillary Entities",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/ancillaries/:id/entities",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ancillaries", ":id", "entities"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Ancillary ID"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Add Ancillary Entity",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"entityType\": \"Division\",\n  \"entityId\": 1,\n  \"entityName\": \"Therapy Division\",\n  \"relationship\": \"Primary Provider\",\n  \"notes\": \"Main therapy provider for this division\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ancillaries/:id/entities",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ancillaries", ":id", "entities"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Ancillary ID"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201, 404]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Search",
+      "item": [
+        {
+          "name": "Search Patients",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/patients/search?query=John&agencyId=1&status=Active",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "patients", "search"],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "John",
+                  "description": "Search query (name, WAV ID, Medicare)"
+                },
+                {
+                  "key": "agencyId",
+                  "value": "1",
+                  "description": "Filter by agency ID"
+                },
+                {
+                  "key": "status",
+                  "value": "Active",
+                  "description": "Filter by status"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is array\", function () {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Search Contacts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/contacts/search?query=Jane&contactType=Primary&status=Active",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "contacts", "search"],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "Jane",
+                  "description": "Search query (name, email, phone)"
+                },
+                {
+                  "key": "contactType",
+                  "value": "Primary",
+                  "description": "Filter by contact type"
+                },
+                {
+                  "key": "status",
+                  "value": "Active",
+                  "description": "Filter by status"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is array\", function () {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Search Ancillaries",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/ancillaries/search?query=Michael&specialty=Physical Therapy&divisionId=1&status=Active",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ancillaries", "search"],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "Michael",
+                  "description": "Search query (name, specialty, license)"
+                },
+                {
+                  "key": "specialty",
+                  "value": "Physical Therapy",
+                  "description": "Filter by specialty"
+                },
+                {
+                  "key": "divisionId",
+                  "value": "1",
+                  "description": "Filter by division ID"
+                },
+                {
+                  "key": "status",
+                  "value": "Active",
+                  "description": "Filter by status"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is array\", function () {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Stats",
+      "item": [
+        {
+          "name": "Get Patient Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/stats/patients",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "stats", "patients"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has stats\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('total');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Contact Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/stats/contacts",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "stats", "contacts"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has stats\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('total');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Ancillary Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/stats/ancillaries",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "stats", "ancillaries"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has stats\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('total');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Reports",
+      "item": [
+        {
+          "name": "Get Patients By Agency",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/reports/patients/agency/:agencyId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reports", "patients", "agency", ":agencyId"],
+              "variable": [
+                {
+                  "key": "agencyId",
+                  "value": "1",
+                  "description": "Agency ID"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is array\", function () {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Contacts By Entity",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/reports/contacts/entity/:entityType/:entityId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reports", "contacts", "entity", ":entityType", ":entityId"],
+              "variable": [
+                {
+                  "key": "entityType",
+                  "value": "Agency",
+                  "description": "Entity Type"
+                },
+                {
+                  "key": "entityId",
+                  "value": "1",
+                  "description": "Entity ID"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is array\", function () {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Ancillaries By Division",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/reports/ancillaries/division/:divisionId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reports", "ancillaries", "division", ":divisionId"],
+              "variable": [
+                {
+                  "key": "divisionId",
+                  "value": "1",
+                  "description": "Division ID"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is array\", function () {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Bulk Operations",
+      "item": [
+        {
+          "name": "Bulk Create Patients",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"dateOfBirth\": \"1990-01-01\",\n    \"gender\": \"Male\",\n    \"ssn\": \"123-45-6789\",\n    \"medicareNumber\": \"123456789A\",\n    \"address\": \"123 Main St\",\n    \"city\": \"New York\",\n    \"state\": \"NY\",\n    \"zipCode\": \"10001\",\n    \"phoneNumber\": \"555-1234\",\n    \"email\": \"john.doe@example.com\",\n    \"agencyId\": 1,\n    \"admissionDate\": \"2024-01-01\",\n    \"status\": \"Active\"\n  },\n  {\n    \"firstName\": \"Jane\",\n    \"lastName\": \"Smith\",\n    \"dateOfBirth\": \"1985-05-15\",\n    \"gender\": \"Female\",\n    \"ssn\": \"987-65-4321\",\n    \"medicareNumber\": \"987654321B\",\n    \"address\": \"456 Oak Ave\",\n    \"city\": \"Los Angeles\",\n    \"state\": \"CA\",\n    \"zipCode\": \"90001\",\n    \"phoneNumber\": \"555-5678\",\n    \"email\": \"jane.smith@example.com\",\n    \"agencyId\": 1,\n    \"admissionDate\": \"2024-01-15\",\n    \"status\": \"Active\"\n  }\n]"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/bulk/patients",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bulk", "patients"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 207\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 207]);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has results\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('successCount');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Bulk Create Contacts",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"firstName\": \"Alice\",\n    \"lastName\": \"Johnson\",\n    \"email\": \"alice.j@example.com\",\n    \"phoneNumber\": \"555-1111\",\n    \"address\": \"789 Pine Rd\",\n    \"city\": \"Chicago\",\n    \"state\": \"IL\",\n    \"zipCode\": \"60601\",\n    \"contactType\": \"Primary\",\n    \"status\": \"Active\"\n  },\n  {\n    \"firstName\": \"Bob\",\n    \"lastName\": \"Williams\",\n    \"email\": \"bob.w@example.com\",\n    \"phoneNumber\": \"555-2222\",\n    \"address\": \"321 Maple Dr\",\n    \"city\": \"Houston\",\n    \"state\": \"TX\",\n    \"zipCode\": \"77001\",\n    \"contactType\": \"Secondary\",\n    \"status\": \"Active\"\n  }\n]"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/bulk/contacts",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bulk", "contacts"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 207\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 207]);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has results\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('successCount');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Bulk Create Ancillaries",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"firstName\": \"David\",\n    \"lastName\": \"Brown\",\n    \"email\": \"david.b@example.com\",\n    \"phoneNumber\": \"555-3333\",\n    \"specialty\": \"Physical Therapy\",\n    \"licenseNumber\": \"PT11111\",\n    \"divisionId\": 1,\n    \"status\": \"Active\"\n  },\n  {\n    \"firstName\": \"Emily\",\n    \"lastName\": \"Davis\",\n    \"email\": \"emily.d@example.com\",\n    \"phoneNumber\": \"555-4444\",\n    \"specialty\": \"Occupational Therapy\",\n    \"licenseNumber\": \"OT22222\",\n    \"divisionId\": 1,\n    \"status\": \"Active\"\n  }\n]"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/bulk/ancillaries",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bulk", "ancillaries"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 207\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 207]);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has results\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('successCount');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
