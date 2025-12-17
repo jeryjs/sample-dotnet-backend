@@ -5,6 +5,7 @@ using BackendApi.Middleware;
 using BackendApi.Infrastructure.Data;
 using BackendApi.Infrastructure.Repositories;
 using BackendApi.Infrastructure.Security;
+using Microsoft.AspNetCore.HttpOverrides;
 
 // Load .env file for local development
 // Note: Environment variables must be set before CreateBuilder() so configuration providers can pick them up.
@@ -147,6 +148,14 @@ if (devAuthEnabled)
 {
     app.UseMiddleware<DevAuthMiddleware>();
 }
+
+// Trust proxy headers (e.g., X-Forwarded-For) - must be before authentication middleware
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+    // Optionally, restrict known networks/proxies for security:
+    // KnownProxies = { IPAddress.Parse("10.0.1.16") }
+});
 
 // Use Authentication & Authorization
 app.UseAuthentication();
