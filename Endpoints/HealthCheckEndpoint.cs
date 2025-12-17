@@ -7,7 +7,7 @@ public class HealthCheckEndpoint : EndpointWithoutRequest<HealthResponse>
     public override void Configure()
     {
         Get("/health-check");
-        Policies("ReadAccess");
+        Policies("DefaultAccess");
         Options(x => x.WithTags("Health"));
     }
 

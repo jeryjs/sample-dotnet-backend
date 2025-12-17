@@ -49,7 +49,7 @@ public class GetContactStatsEndpoint : EndpointWithoutRequest<ContactStatsRespon
     public override void Configure()
     {
         Get("/stats/contacts");
-        Policies("ReadAccess");
+        Policies("DefaultAccess");
         Options(x => x
             .WithTags("Stats")
             .WithSummary("Get contact statistics")

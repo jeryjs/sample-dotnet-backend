@@ -34,7 +34,7 @@ public class GetAncillaryByIdEndpoint : Endpoint<GetAncillaryByIdRequest, Ancill
     public override void Configure()
     {
         Get("/ancillaries/{id}");
-        Policies("ReadAccess");
+        Policies("DefaultAccess");
         Options(x => x
             .WithTags("Ancillaries")
             .WithSummary("Get ancillary user by ID")

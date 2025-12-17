@@ -56,8 +56,7 @@ public static class AuthExtensions
                         .Select(c => $"{c.Type}: {c.Value}")
                         .ToList();
 
-                    logger.LogInformation(
-                        "Token validated successfully for user: {User}. Claims: {Claims}",
+                    logger.LogInformation("Token validated successfully for user: {User}. Claims: {Claims}",
                         context.Principal?.Identity?.Name ?? "Unknown",
                         string.Join(", ", claims ?? new List<string>()));
 
@@ -101,9 +100,7 @@ public static class AuthExtensions
             {
                 policy.RequireAuthenticatedUser();
                 policy.RequireRole("Admin");
-                
-                logger.LogInformation(
-                    "Policy 'AdminOnly' defined: Requires role 'Admin'");
+                logger.LogInformation("Policy 'AdminOnly' defined: Requires role 'Admin'");
             })
             .AddPolicy("WriteAccess", policy =>
             {
@@ -121,9 +118,7 @@ public static class AuthExtensions
 
                     return hasWriteScope || hasAdminRole || hasWriterRole;
                 });
-
-                logger.LogInformation(
-                    "Policy 'WriteAccess' defined: Requires scope 'api.write' OR role 'Admin' OR role 'Writer'");
+                logger.LogInformation("Policy 'WriteAccess' defined: Requires scope 'api.write' OR role 'Admin' OR role 'Writer'");
             })
             .AddPolicy("ReadAccess", policy =>
             {
@@ -135,14 +130,14 @@ public static class AuthExtensions
                         c.Type == "http://schemas.microsoft.com/identity/claims/scope" &&
                         c.Value.Split(' ').Contains("api.read"));
 
-                    // Allow any authenticated user
-                    var isAuthenticated = context.User.Identity?.IsAuthenticated ?? false;
-
-                    return hasReadScope || isAuthenticated;
+                    return hasReadScope;
                 });
-
-                logger.LogInformation(
-                    "Policy 'ReadAccess' defined: Requires scope 'api.read' OR any authenticated user");
+                logger.LogInformation("Policy 'ReadAccess' defined: Requires scope 'api.read' OR any authenticated user");
+            })
+            .AddPolicy("DefaultAccess", policy =>
+            {
+                policy.RequireAuthenticatedUser();
+                logger.LogInformation("Policy 'DefaultAccess' defined: Requires authenticated user");
             });
 
         logger.LogInformation("Authorization policies configured successfully");
@@ -160,7 +155,7 @@ public static class AuthExtensions
 
         logger.LogInformation("Registering claims transformation...");
 
-        services.AddScoped<Microsoft.AspNetCore.Authentication.IClaimsTransformation, 
+        services.AddScoped<Microsoft.AspNetCore.Authentication.IClaimsTransformation,
             AzureAdClaimsTransformation>();
 
         logger.LogInformation(
