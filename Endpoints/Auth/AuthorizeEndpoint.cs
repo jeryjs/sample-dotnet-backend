@@ -36,34 +36,7 @@ public class AuthorizeEndpoint : EndpointWithoutRequest<string>
             apiScope = !string.IsNullOrEmpty(audience) ? $"{audience}/access_as_user" : string.Empty;
         }
 
-        // Get logger from the context
-        var logger = HttpContext.RequestServices.GetRequiredService<ILogger<AuthorizeEndpoint>>();
-
-        // Log host and request details in detail
-        logger.LogInformation(
-            "Authorization endpoint called. Host: {Host}, Scheme: {Scheme}, Path: {Path}, " +
-            "Method: {Method}, RemoteIP: {RemoteIP}, UserAgent: {UserAgent}, " +
-            "QueryString: {QueryString}, TenantId: {TenantId}, ClientId: {ClientId}, Scope: {Scope}",
-            HttpContext.Request.Host.Value,
-            HttpContext.Request.Scheme,
-            HttpContext.Request.Path,
-            HttpContext.Request.Method,
-            HttpContext.Connection.RemoteIpAddress,
-            HttpContext.Request.Headers.UserAgent.ToString(),
-            HttpContext.Request.QueryString.Value,
-            tenant,
-            clientId,
-            apiScope
-        );
-
-        logger.LogDebug(
-            "Request headers - ContentType: {ContentType}, Accept: {Accept}, Origin: {Origin}, Referer: {Referer}",
-            HttpContext.Request.ContentType,
-            HttpContext.Request.Headers.Accept.ToString(),
-            HttpContext.Request.Headers.Origin.ToString(),
-            HttpContext.Request.Headers.Referer.ToString()
-        );
-        var redirect = HttpContext.Request.Query.TryGetValue("redirect_uri", out var r) ? r.ToString() : $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/api/signin-oidc";
+        var redirect = HttpContext.Request.Query.TryGetValue("redirect_uri", out var r) ? r.ToString() : $"http{(HttpContext.Request.Host.Value.StartsWith("localhost") ? "" : "s")}://{HttpContext.Request.Host}/api/signin-oidc";
 
         var query = new Dictionary<string, string?>
         {
