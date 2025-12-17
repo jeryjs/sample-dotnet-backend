@@ -60,7 +60,7 @@ public class SigninOidcCallbackEndpoint : EndpointWithoutRequest<object>
         var scope = _config["AZURE_AD__SCOPE"] ?? _config["AzureAd:Scope"] ?? $"{_config["AzureAd:Audience"]}/access_as_user";
 
         var tokenUrl = $"https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token";
-        var redirectUri = $"http://{HttpContext.Request.Host}/api/signin-oidc";
+        var redirectUri = $"http{(HttpContext.Request.Host.Value.StartsWith("localhost") ? "" : "s")}://{HttpContext.Request.Host}/api/signin-oidc";
 
         var form = new Dictionary<string, string>
         {
