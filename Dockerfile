@@ -20,9 +20,6 @@ RUN dotnet publish -c Release -o /app/publish /p:UseAppHost=false
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 
-# Create non-root user
-RUN groupadd -r appuser && useradd -r -g appuser appuser
-
 # Copy published application
 COPY --from=publish /app/publish .
 
@@ -34,14 +31,6 @@ COPY appsettings.Development.json .
 # COPY --chown=appuser:appuser ../all_patients_data_f.json /data/
 # COPY --chown=appuser:appuser ../getActiveAncillaryUsers.json /data/
 # COPY --chown=appuser:appuser ../getActiveContactUsers.json /data/
-
-# Set ownership
-RUN chown -R appuser:appuser /app && \
-    mkdir -p /data && \
-    chown -R appuser:appuser /data
-
-# Switch to non-root user
-USER appuser
 
 # Expose port
 EXPOSE 8080

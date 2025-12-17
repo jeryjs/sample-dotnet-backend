@@ -69,6 +69,7 @@ public class ContactUserJsonLoader
         
         try
         {
+            if (!File.Exists(filePath)) filePath = "/data/getActiveContactUsers.json";
             if (!File.Exists(filePath))
             {
                 _logger.LogWarning("Contact users data file not found: {FilePath}", filePath);

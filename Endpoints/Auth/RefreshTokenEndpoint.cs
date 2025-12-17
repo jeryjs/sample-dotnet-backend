@@ -39,7 +39,7 @@ public class RefreshTokenEndpoint : Endpoint<RefreshTokenRequest, object>
 
         var tenant = _config["AZURE_AD__TENANTID"] ?? _config["AzureAd:TenantId"] ?? string.Empty;
         var clientId = _config["AZURE_AD__CLIENTID"] ?? _config["AzureAd:ClientId"] ?? string.Empty;
-        var clientSecret = _config["AZURE_AD__CLIENTSECRET"] ?? _config["AzureAd:ClientSecret"] ?? string.Empty;
+        var clientSecret = _config["AZURE_AD__CLIENTSECRET"] ?? Environment.GetEnvironmentVariable("AZURE_AD__CLIENTSECRET") ?? _config["AzureAd:ClientSecret"] ?? string.Empty;
         var scope = _config["AZURE_AD__SCOPE"] ?? _config["AzureAd:Scope"] ?? $"{_config["AzureAd:Audience"]}/access_as_user";
         var tokenUrl = $"https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token";
 

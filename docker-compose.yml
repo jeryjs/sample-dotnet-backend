@@ -27,7 +27,7 @@ services:
       - AzureAd__ClientSecret=${AZURE_AD__CLIENTSECRET:-your-client-secret}
       - AzureAd__Instance=${AZURE_AD__INSTANCE:-https://login.microsoftonline.com/}
       - AzureAd__Audience=${AZURE_AD__AUDIENCE:-api://your-api-id}
-    # restart: unless-stopped
+    restart: unless-stopped
     # healthcheck:
     #   test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
     #   interval: 30s
