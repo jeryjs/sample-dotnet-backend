@@ -14,4 +14,7 @@ public interface IAncillaryUserRepository
     Task<List<AncillaryUser>> GetByDivisionAsync(string division, CancellationToken cancellationToken = default);
     Task<List<AncillaryUser>> FindAsync(Func<AncillaryUser, bool> predicate, CancellationToken cancellationToken = default);
     Task<int> CountAsync(CancellationToken cancellationToken = default);
+    Task<AncillaryUser> CreateAsync(AncillaryUser ancillaryUser, CancellationToken cancellationToken = default);
+    Task<AncillaryUser?> UpdateAsync(AncillaryUser ancillaryUser, CancellationToken cancellationToken = default);
+    Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 }

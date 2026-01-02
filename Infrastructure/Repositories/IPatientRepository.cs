@@ -14,4 +14,7 @@ public interface IPatientRepository
     Task<List<Patient>> GetByAgencyAsync(string agencyName, CancellationToken cancellationToken = default);
     Task<List<Patient>> FindAsync(Func<Patient, bool> predicate, CancellationToken cancellationToken = default);
     Task<int> CountAsync(CancellationToken cancellationToken = default);
+    Task<Patient> CreateAsync(Patient patient, CancellationToken cancellationToken = default);
+    Task<Patient?> UpdateAsync(Patient patient, CancellationToken cancellationToken = default);
+    Task<bool> DeleteAsync(string id, CancellationToken cancellationToken = default);
 }

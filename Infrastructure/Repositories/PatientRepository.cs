@@ -1,124 +1,227 @@
 using backend_api.Domain.Models;
 using BackendApi.Infrastructure.Data;
-using System.Collections.Concurrent;
+using MongoDB.Driver;
 
 namespace BackendApi.Infrastructure.Repositories;
 
 /// <summary>
-/// In-memory repository implementation for Patient entities.
+/// MongoDB-based repository implementation for Patient entities.
 /// </summary>
 public class PatientRepository : IPatientRepository
 {
-    private readonly ConcurrentDictionary<string, Patient> _data = new();
+    private readonly MongoDbContext _dbContext;
     private readonly ILogger<PatientRepository> _logger;
-    private bool _isInitialized = false;
-    private readonly SemaphoreSlim _initLock = new(1, 1);
-    private readonly PatientJsonLoader _dataLoader;
+    private readonly IMongoCollection<Patient> _collection;
 
-    public PatientRepository(ILogger<PatientRepository> logger, PatientJsonLoader dataLoader)
+    public PatientRepository(
+        MongoDbContext dbContext,
+        ILogger<PatientRepository> logger)
     {
+        _dbContext = dbContext;
         _logger = logger;
-        _dataLoader = dataLoader;
-    }
-
-    private async Task EnsureInitializedAsync(CancellationToken cancellationToken = default)
-    {
-        if (_isInitialized) return;
-
-        await _initLock.WaitAsync(cancellationToken);
-        try
-        {
-            if (_isInitialized) return;
-
-            var patients = await _dataLoader.LoadAsync(cancellationToken);
-            foreach (var patient in patients)
-            {
-                _data.TryAdd(patient.Id, patient);
-            }
-            _isInitialized = true;
-            _logger.LogInformation("Initialized PatientRepository with {Count} patients", _data.Count);
-        }
-        finally
-        {
-            _initLock.Release();
-        }
+        _collection = dbContext.Patients;
     }
 
     public async Task<Patient?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
     {
-        await EnsureInitializedAsync(cancellationToken);
-        _data.TryGetValue(id, out var patient);
-        return patient;
+        try
+        {
+            var filter = Builders<Patient>.Filter.Eq(p => p.Id, id);
+            return await _collection.Find(filter).FirstOrDefaultAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving patient by ID: {Id}", id);
+            throw;
+        }
     }
 
     public async Task<Patient?> GetByWavIdAsync(string wavId, CancellationToken cancellationToken = default)
     {
-        await EnsureInitializedAsync(cancellationToken);
-        return _data.Values.FirstOrDefault(p => 
-            p.AgencyInfo?.PatientWAVId?.Equals(wavId, StringComparison.OrdinalIgnoreCase) == true);
+        try
+        {
+            var filter = Builders<Patient>.Filter.Eq("agencyInfo.patientWAVId", wavId);
+            return await _collection.Find(filter).FirstOrDefaultAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving patient by WAV ID: {WavId}", wavId);
+            throw;
+        }
     }
 
     public async Task<List<Patient>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        await EnsureInitializedAsync(cancellationToken);
-        return _data.Values.ToList();
+        try
+        {
+            return await _collection.Find(FilterDefinition<Patient>.Empty)
+                .ToListAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving all patients");
+            throw;
+        }
     }
 
     public async Task<List<Patient>> SearchAsync(
-        string? firstName, 
-        string? lastName, 
-        string? email, 
-        string? phone, 
+        string? firstName,
+        string? lastName,
+        string? email,
+        string? phone,
         CancellationToken cancellationToken = default)
     {
-        await EnsureInitializedAsync(cancellationToken);
-
-        var results = _data.Values.Where(p =>
+        try
         {
-            var agencyInfo = p.AgencyInfo;
-            if (agencyInfo == null) return false;
-
-            bool matches = true;
+            var filterBuilder = Builders<Patient>.Filter;
+            var filters = new List<FilterDefinition<Patient>>();
 
             if (!string.IsNullOrWhiteSpace(firstName))
             {
-                matches = matches && agencyInfo.PatientFName?.Contains(firstName, StringComparison.OrdinalIgnoreCase) == true;
+                filters.Add(filterBuilder.Regex(
+                    "agencyInfo.patientFName",
+                    new MongoDB.Bson.BsonRegularExpression(firstName, "i")));
             }
 
             if (!string.IsNullOrWhiteSpace(lastName))
             {
-                matches = matches && agencyInfo.PatientLName?.Contains(lastName, StringComparison.OrdinalIgnoreCase) == true;
+                filters.Add(filterBuilder.Regex(
+                    "agencyInfo.patientLName",
+                    new MongoDB.Bson.BsonRegularExpression(lastName, "i")));
             }
 
-            // Email and phone would need to be added to the model if needed
-            // For now, we'll just use the available fields
+            if (!string.IsNullOrWhiteSpace(email))
+            {
+                filters.Add(filterBuilder.Regex(
+                    "agencyInfo.email",
+                    new MongoDB.Bson.BsonRegularExpression(email, "i")));
+            }
 
-            return matches;
-        }).ToList();
+            if (!string.IsNullOrWhiteSpace(phone))
+            {
+                filters.Add(filterBuilder.Regex(
+                    "agencyInfo.phoneNo",
+                    new MongoDB.Bson.BsonRegularExpression(phone, "i")));
+            }
 
-        return results;
+            var finalFilter = filters.Count > 0
+                ? filterBuilder.And(filters)
+                : FilterDefinition<Patient>.Empty;
+
+            return await _collection.Find(finalFilter).ToListAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error searching patients");
+            throw;
+        }
     }
 
     public async Task<List<Patient>> GetByAgencyAsync(string agencyName, CancellationToken cancellationToken = default)
     {
-        await EnsureInitializedAsync(cancellationToken);
-        
-        // Note: The current Patient model doesn't have an explicit agency name field
-        // This method could be extended when agency information becomes available
-        // For now, returns empty list as a placeholder
-        _logger.LogWarning("GetByAgencyAsync called but agency name field not available in current model");
-        return new List<Patient>();
+        try
+        {
+            var filter = Builders<Patient>.Filter.Regex(
+                "agencyInfo.agencyName",
+                new MongoDB.Bson.BsonRegularExpression(agencyName, "i"));
+            
+            return await _collection.Find(filter).ToListAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving patients by agency: {AgencyName}", agencyName);
+            throw;
+        }
     }
 
     public async Task<List<Patient>> FindAsync(Func<Patient, bool> predicate, CancellationToken cancellationToken = default)
     {
-        await EnsureInitializedAsync(cancellationToken);
-        return _data.Values.Where(predicate).ToList();
+        try
+        {
+            var allPatients = await GetAllAsync(cancellationToken);
+            return allPatients.Where(predicate).ToList();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error finding patients with predicate");
+            throw;
+        }
     }
 
     public async Task<int> CountAsync(CancellationToken cancellationToken = default)
     {
-        await EnsureInitializedAsync(cancellationToken);
-        return _data.Count;
+        try
+        {
+            var count = await _collection.CountDocumentsAsync(
+                FilterDefinition<Patient>.Empty,
+                cancellationToken: cancellationToken);
+            return (int)count;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error counting patients");
+            throw;
+        }
+    }
+
+    public async Task<Patient> CreateAsync(Patient patient, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await _collection.InsertOneAsync(patient, cancellationToken: cancellationToken);
+            _logger.LogInformation("Created patient with ID: {Id}", patient.Id);
+            return patient;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error creating patient");
+            throw;
+        }
+    }
+
+    public async Task<Patient?> UpdateAsync(Patient patient, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var filter = Builders<Patient>.Filter.Eq(p => p.Id, patient.Id);
+            var result = await _collection.ReplaceOneAsync(filter, patient, cancellationToken: cancellationToken);
+            
+            if (result.MatchedCount == 0)
+            {
+                _logger.LogWarning("Patient not found for update: {Id}", patient.Id);
+                return null;
+            }
+
+            _logger.LogInformation("Updated patient with ID: {Id}", patient.Id);
+            return patient;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating patient");
+            throw;
+        }
+    }
+
+    public async Task<bool> DeleteAsync(string id, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var filter = Builders<Patient>.Filter.Eq(p => p.Id, id);
+            var result = await _collection.DeleteOneAsync(filter, cancellationToken);
+            
+            if (result.DeletedCount == 0)
+            {
+                _logger.LogWarning("Patient not found for deletion: {Id}", id);
+                return false;
+            }
+
+            _logger.LogInformation("Deleted patient with ID: {Id}", id);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting patient");
+            throw;
+        }
     }
 }

@@ -14,4 +14,7 @@ public interface IContactUserRepository
     Task<List<ContactUser>> GetByEntityAsync(string entityId, CancellationToken cancellationToken = default);
     Task<List<ContactUser>> FindAsync(Func<ContactUser, bool> predicate, CancellationToken cancellationToken = default);
     Task<int> CountAsync(CancellationToken cancellationToken = default);
+    Task<ContactUser> CreateAsync(ContactUser contactUser, CancellationToken cancellationToken = default);
+    Task<ContactUser?> UpdateAsync(ContactUser contactUser, CancellationToken cancellationToken = default);
+    Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 }

@@ -64,12 +64,17 @@ builder.Services.AddAuthorizationPolicies();
 // Add Claims Transformation
 builder.Services.AddClaimsTransformation();
 
-// Register JSON Data Loaders as Singletons
-builder.Services.AddSingleton<PatientJsonLoader>();
-builder.Services.AddSingleton<ContactUserJsonLoader>();
-builder.Services.AddSingleton<AncillaryUserJsonLoader>();
+// Configure MongoDB settings
+builder.Services.Configure<MongoDbSettings>(
+    builder.Configuration.GetSection(MongoDbSettings.SectionName));
 
-// Register Repositories as Singletons
+// Register MongoDB Context
+builder.Services.AddSingleton<MongoDbContext>();
+
+// Register Data Import Service
+builder.Services.AddSingleton<DataImportService>();
+
+// Register MongoDB Repositories
 builder.Services.AddSingleton<IPatientRepository, PatientRepository>();
 builder.Services.AddSingleton<IContactUserRepository, ContactUserRepository>();
 builder.Services.AddSingleton<IAncillaryUserRepository, AncillaryUserRepository>();
@@ -103,7 +108,8 @@ builder.Services.AddCors(options =>
 });
 
 // Add Health Checks
-builder.Services.AddHealthChecks();
+builder.Services.AddHealthChecks()
+    .AddCheck<MongoDbHealthCheck>("mongodb", tags: new[] { "database", "mongodb" });
 
 // Add exception handler
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();

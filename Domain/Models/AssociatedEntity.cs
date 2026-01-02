@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using BackendApi.Infrastructure.Data;
 
 namespace backend_api.Domain.Models;
 
@@ -11,6 +12,7 @@ public record AssociatedEntity
     /// Gets the unique identifier for the associated entity.
     /// </summary>
     [JsonPropertyName("id")]
+    [JsonConverter(typeof(GuidConverter))]
     public required Guid Id { get; init; }
 
     /// <summary>

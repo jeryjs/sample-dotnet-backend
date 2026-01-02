@@ -1,123 +1,225 @@
 using backend_api.Domain.Models;
 using BackendApi.Infrastructure.Data;
-using System.Collections.Concurrent;
+using MongoDB.Driver;
 
 namespace BackendApi.Infrastructure.Repositories;
 
 /// <summary>
-/// In-memory repository implementation for ContactUser entities.
+/// MongoDB-based repository implementation for ContactUser entities.
 /// </summary>
 public class ContactUserRepository : IContactUserRepository
 {
-    private readonly ConcurrentDictionary<Guid, ContactUser> _data = new();
+    private readonly MongoDbContext _dbContext;
     private readonly ILogger<ContactUserRepository> _logger;
-    private bool _isInitialized = false;
-    private readonly SemaphoreSlim _initLock = new(1, 1);
-    private readonly ContactUserJsonLoader _dataLoader;
+    private readonly IMongoCollection<ContactUser> _collection;
 
-    public ContactUserRepository(ILogger<ContactUserRepository> logger, ContactUserJsonLoader dataLoader)
+    public ContactUserRepository(
+        MongoDbContext dbContext,
+        ILogger<ContactUserRepository> logger)
     {
+        _dbContext = dbContext;
         _logger = logger;
-        _dataLoader = dataLoader;
-    }
-
-    private async Task EnsureInitializedAsync(CancellationToken cancellationToken = default)
-    {
-        if (_isInitialized) return;
-
-        await _initLock.WaitAsync(cancellationToken);
-        try
-        {
-            if (_isInitialized) return;
-
-            var contactUsers = await _dataLoader.LoadAsync(cancellationToken);
-            foreach (var contactUser in contactUsers)
-            {
-                _data.TryAdd(contactUser.Id, contactUser);
-            }
-            _isInitialized = true;
-            _logger.LogInformation("Initialized ContactUserRepository with {Count} contact users", _data.Count);
-        }
-        finally
-        {
-            _initLock.Release();
-        }
+        _collection = dbContext.ContactUsers;
     }
 
     public async Task<ContactUser?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        await EnsureInitializedAsync(cancellationToken);
-        _data.TryGetValue(id, out var contactUser);
-        return contactUser;
+        try
+        {
+            var filter = Builders<ContactUser>.Filter.Eq(c => c.Id, id);
+            return await _collection.Find(filter).FirstOrDefaultAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving contact user by ID: {Id}", id);
+            throw;
+        }
     }
 
     public async Task<ContactUser?> GetByWavIdAsync(string wavId, CancellationToken cancellationToken = default)
     {
-        await EnsureInitializedAsync(cancellationToken);
-        return _data.Values.FirstOrDefault(cu => 
-            cu.ContactWavId.Equals(wavId, StringComparison.OrdinalIgnoreCase));
+        try
+        {
+            var filter = Builders<ContactUser>.Filter.Eq(c => c.ContactWavId, wavId);
+            return await _collection.Find(filter).FirstOrDefaultAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving contact user by WAV ID: {WavId}", wavId);
+            throw;
+        }
     }
 
     public async Task<List<ContactUser>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        await EnsureInitializedAsync(cancellationToken);
-        return _data.Values.ToList();
+        try
+        {
+            return await _collection.Find(FilterDefinition<ContactUser>.Empty)
+                .ToListAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving all contact users");
+            throw;
+        }
     }
 
     public async Task<List<ContactUser>> SearchAsync(
-        string? firstName, 
-        string? lastName, 
-        string? jobTitle, 
+        string? firstName,
+        string? lastName,
+        string? jobTitle,
         CancellationToken cancellationToken = default)
     {
-        await EnsureInitializedAsync(cancellationToken);
-
-        var results = _data.Values.Where(cu =>
+        try
         {
-            bool matches = true;
+            var filterBuilder = Builders<ContactUser>.Filter;
+            var filters = new List<FilterDefinition<ContactUser>>();
 
             if (!string.IsNullOrWhiteSpace(firstName))
             {
-                matches = matches && cu.FirstName.Contains(firstName, StringComparison.OrdinalIgnoreCase);
+                filters.Add(filterBuilder.Regex(
+                    c => c.FirstName,
+                    new MongoDB.Bson.BsonRegularExpression(firstName, "i")));
             }
 
             if (!string.IsNullOrWhiteSpace(lastName))
             {
-                matches = matches && cu.LastName.Contains(lastName, StringComparison.OrdinalIgnoreCase);
+                filters.Add(filterBuilder.Regex(
+                    c => c.LastName,
+                    new MongoDB.Bson.BsonRegularExpression(lastName, "i")));
             }
 
             if (!string.IsNullOrWhiteSpace(jobTitle))
             {
-                matches = matches && cu.JobTitle?.Contains(jobTitle, StringComparison.OrdinalIgnoreCase) == true;
+                filters.Add(filterBuilder.Regex(
+                    c => c.JobTitle,
+                    new MongoDB.Bson.BsonRegularExpression(jobTitle, "i")));
             }
 
-            return matches;
-        }).ToList();
+            var finalFilter = filters.Count > 0
+                ? filterBuilder.And(filters)
+                : FilterDefinition<ContactUser>.Empty;
 
-        return results;
+            return await _collection.Find(finalFilter).ToListAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error searching contact users");
+            throw;
+        }
     }
 
     public async Task<List<ContactUser>> GetByEntityAsync(string entityId, CancellationToken cancellationToken = default)
     {
-        await EnsureInitializedAsync(cancellationToken);
-        
-        var results = _data.Values.Where(cu => 
-            cu.AssociatedEntities.Any(ae => 
-                ae.Id.ToString().Equals(entityId, StringComparison.OrdinalIgnoreCase)))
-            .ToList();
+        try
+        {
+            if (!Guid.TryParse(entityId, out var entityGuid))
+            {
+                _logger.LogWarning("Invalid entity ID format: {EntityId}", entityId);
+                return new List<ContactUser>();
+            }
 
-        return results;
+            var filter = Builders<ContactUser>.Filter.ElemMatch(
+                c => c.AssociatedEntities,
+                Builders<AssociatedEntity>.Filter.Eq("id", entityGuid));
+            
+            return await _collection.Find(filter).ToListAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving contact users by entity: {EntityId}", entityId);
+            throw;
+        }
     }
 
     public async Task<List<ContactUser>> FindAsync(Func<ContactUser, bool> predicate, CancellationToken cancellationToken = default)
     {
-        await EnsureInitializedAsync(cancellationToken);
-        return _data.Values.Where(predicate).ToList();
+        try
+        {
+            var allUsers = await GetAllAsync(cancellationToken);
+            return allUsers.Where(predicate).ToList();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error finding contact users with predicate");
+            throw;
+        }
     }
 
     public async Task<int> CountAsync(CancellationToken cancellationToken = default)
     {
-        await EnsureInitializedAsync(cancellationToken);
-        return _data.Count;
+        try
+        {
+            var count = await _collection.CountDocumentsAsync(
+                FilterDefinition<ContactUser>.Empty,
+                cancellationToken: cancellationToken);
+            return (int)count;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error counting contact users");
+            throw;
+        }
+    }
+
+    public async Task<ContactUser> CreateAsync(ContactUser contactUser, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await _collection.InsertOneAsync(contactUser, cancellationToken: cancellationToken);
+            _logger.LogInformation("Created contact user with ID: {Id}", contactUser.Id);
+            return contactUser;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error creating contact user");
+            throw;
+        }
+    }
+
+    public async Task<ContactUser?> UpdateAsync(ContactUser contactUser, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var filter = Builders<ContactUser>.Filter.Eq(c => c.Id, contactUser.Id);
+            var result = await _collection.ReplaceOneAsync(filter, contactUser, cancellationToken: cancellationToken);
+            
+            if (result.MatchedCount == 0)
+            {
+                _logger.LogWarning("Contact user not found for update: {Id}", contactUser.Id);
+                return null;
+            }
+
+            _logger.LogInformation("Updated contact user with ID: {Id}", contactUser.Id);
+            return contactUser;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating contact user");
+            throw;
+        }
+    }
+
+    public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var filter = Builders<ContactUser>.Filter.Eq(c => c.Id, id);
+            var result = await _collection.DeleteOneAsync(filter, cancellationToken);
+            
+            if (result.DeletedCount == 0)
+            {
+                _logger.LogWarning("Contact user not found for deletion: {Id}", id);
+                return false;
+            }
+
+            _logger.LogInformation("Deleted contact user with ID: {Id}", id);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting contact user");
+            throw;
+        }
     }
 }
