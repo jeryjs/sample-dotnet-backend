@@ -2,6 +2,7 @@ using FastEndpoints;
 using BackendApi.Infrastructure.Tagging;
 using BackendApi.Infrastructure.Data;
 using backend_api.Domain.Models;
+using MongoDB.Driver;
 
 namespace BackendApi.Endpoints.Admin;
 

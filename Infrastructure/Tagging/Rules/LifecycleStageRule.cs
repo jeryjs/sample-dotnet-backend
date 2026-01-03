@@ -41,7 +41,7 @@ public sealed class LifecycleStageRule : TaggingRuleBase
         string? lifecycleStage = context.Entity switch
         {
             AncillaryUser ancillary => ancillary.LifecycleStage,
-            ContactUser contact => contact.ContactLifecycleStage,
+            ContactUser contactUser => contactUser.ContactLifecycleStage,
             _ => null
         };
 
@@ -94,14 +94,14 @@ public sealed class LifecycleStageRule : TaggingRuleBase
         }
 
         // Check for associated entities relationships
-        if (context.Entity is ContactUser contact && contact.AssociatedEntities.Count > 0)
+        if (context.Entity is ContactUser contactEntity && contactEntity.AssociatedEntities.Count > 0)
         {
             tags.Add(CreateTag("has-associations", "relationship", confidence: 1.0,
                 metadata: new Dictionary<string, string>
                 {
-                    ["count"] = contact.AssociatedEntities.Count.ToString()
+                    ["count"] = contactEntity.AssociatedEntities.Count.ToString()
                 }));
-            diagnostics.Add($"Has {contact.AssociatedEntities.Count} associated entit(ies)");
+            diagnostics.Add($"Has {contactEntity.AssociatedEntities.Count} associated entit(ies)");
         }
 
         if (context.Entity is AncillaryUser ancillaryUser && ancillaryUser.AssociatedEntities.Count > 0)

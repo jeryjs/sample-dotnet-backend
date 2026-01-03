@@ -4,6 +4,7 @@ using BackendApi.Infrastructure.Data;
 using BackendApi.Infrastructure.Tagging.Rules;
 using MongoDB.Driver;
 using System.Diagnostics;
+using DomainTag = backend_api.Domain.Common.Tag;
 
 namespace BackendApi.Infrastructure.Tagging;
 
@@ -363,7 +364,7 @@ public sealed class TaggingService : ITaggingService
     }
 
     public async Task<ValidationResult> ValidateTagsAsync(
-        IEnumerable<Tag> tags,
+        IEnumerable<DomainTag> tags,
         CancellationToken cancellationToken = default)
     {
         var result = new ValidationResult { IsValid = true };
@@ -463,18 +464,18 @@ public sealed class TaggingService : ITaggingService
         };
     }
 
-    private static IReadOnlyCollection<Tag> GetExistingTags(object entity)
+    private static IReadOnlyCollection<DomainTag> GetExistingTags(object entity)
     {
         return entity switch
         {
             Patient p => p.Tags,
             ContactUser c => c.Tags,
             AncillaryUser a => a.Tags,
-            _ => Array.Empty<Tag>()
+            _ => Array.Empty<DomainTag>()
         };
     }
 
-    private static T SetTags<T>(T entity, IReadOnlyCollection<Tag> tags) where T : class
+    private static T SetTags<T>(T entity, IReadOnlyCollection<DomainTag> tags) where T : class
     {
         return entity switch
         {

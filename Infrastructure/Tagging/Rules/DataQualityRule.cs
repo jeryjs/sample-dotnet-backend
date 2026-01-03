@@ -45,8 +45,8 @@ public sealed class DataQualityRule : TaggingRuleBase
         // Check for placeholder/test email
         var email = context.Entity switch
         {
-            ContactUser c => c.Email,
-            AncillaryUser a => a.Email,
+            ContactUser contactEntity => contactEntity.Email,
+            AncillaryUser ancillaryEntity => ancillaryEntity.Email,
             _ => null
         };
 
@@ -59,8 +59,8 @@ public sealed class DataQualityRule : TaggingRuleBase
         // Check for placeholder phone
         var phone = context.Entity switch
         {
-            ContactUser c => c.PhoneNo,
-            AncillaryUser a => a.PhoneNo,
+            ContactUser contactEntity => contactEntity.PhoneNo,
+            AncillaryUser ancillaryEntity => ancillaryEntity.PhoneNo,
             _ => null
         };
 
@@ -103,8 +103,9 @@ public sealed class DataQualityRule : TaggingRuleBase
         if (context.Entity is ContactUser contact)
         {
             var hasValidEmail = IsValidEmail(contact.Email) && !PlaceholderEmails.Contains(contact.Email);
-            var hasValidPhone = IsValidPhone(contact.PhoneNo) && 
-                                !PlaceholderPhones.Contains(new string(contact.PhoneNo?.Where(char.IsDigit).ToArray() ?? ""));
+            var phoneDigits = contact.PhoneNo?.Where(char.IsDigit).ToArray();
+            var phoneString = phoneDigits != null ? new string(phoneDigits) : string.Empty;
+            var hasValidPhone = IsValidPhone(contact.PhoneNo) && !PlaceholderPhones.Contains(phoneString);
 
             if (!hasValidEmail && !hasValidPhone)
             {
@@ -120,9 +121,9 @@ public sealed class DataQualityRule : TaggingRuleBase
         }
 
         // Check for test/dummy patterns in names
-        if (context.Entity is ContactUser c)
+        if (context.Entity is ContactUser cont)
         {
-            var fullName = $"{c.FirstName} {c.LastName}".ToLowerInvariant();
+            var fullName = $"{cont.FirstName} {cont.LastName}".ToLowerInvariant();
             if (fullName.Contains("test") || fullName.Contains("dummy") || fullName.Contains("sample"))
             {
                 issues.Add("test-name-pattern");
@@ -130,9 +131,9 @@ public sealed class DataQualityRule : TaggingRuleBase
             }
         }
 
-        if (context.Entity is AncillaryUser a)
+        if (context.Entity is AncillaryUser anc)
         {
-            var name = a.Name?.ToLowerInvariant() ?? "";
+            var name = anc.Name?.ToLowerInvariant() ?? "";
             if (name.Contains("test") || name.Contains("dummy") || name.Contains("sample"))
             {
                 issues.Add("test-name-pattern");
