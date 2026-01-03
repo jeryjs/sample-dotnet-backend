@@ -64,6 +64,9 @@ builder.Services.AddAuthorizationPolicies();
 // Add Claims Transformation
 builder.Services.AddClaimsTransformation();
 
+// Register Tag Access Filter for tag-based authorization
+builder.Services.AddScoped<BackendApi.Infrastructure.Security.ITagAccessFilter, BackendApi.Infrastructure.Security.TagAccessFilter>();
+
 // Configure MongoDB settings
 builder.Services.Configure<MongoDbSettings>(
     builder.Configuration.GetSection(MongoDbSettings.SectionName));

@@ -95,6 +95,10 @@ public static class AuthExtensions
 
         logger.LogInformation("Configuring authorization policies...");
 
+        // Register tag authorization handler
+        services.AddSingleton<IAuthorizationHandler, TagAuthorizationHandler>();
+        services.AddHttpContextAccessor();
+
         services.AddAuthorizationBuilder()
             .AddPolicy("AdminOnly", policy =>
             {
@@ -138,6 +142,30 @@ public static class AuthExtensions
             {
                 policy.RequireAuthenticatedUser();
                 logger.LogInformation("Policy 'DefaultAccess' defined: Requires authenticated user");
+            })
+            .AddPolicy("CanViewPHI", policy =>
+            {
+                policy.RequireAuthenticatedUser();
+                policy.RequireAssertion(context =>
+                {
+                    // Allow Admin and Clinician roles to view PHI
+                    return context.User.IsInRole("Admin") ||
+                           context.User.IsInRole("Clinician") ||
+                           context.User.IsInRole("PHI-Reader");
+                });
+                logger.LogInformation("Policy 'CanViewPHI' defined: Requires role 'Admin', 'Clinician', or 'PHI-Reader'");
+            })
+            .AddPolicy("CanViewPII", policy =>
+            {
+                policy.RequireAuthenticatedUser();
+                policy.RequireAssertion(context =>
+                {
+                    // Allow Admin and standard users to view PII
+                    return context.User.IsInRole("Admin") ||
+                           context.User.IsInRole("User") ||
+                           context.User.IsInRole("PII-Reader");
+                });
+                logger.LogInformation("Policy 'CanViewPII' defined: Requires role 'Admin', 'User', or 'PII-Reader'");
             });
 
         logger.LogInformation("Authorization policies configured successfully");
