@@ -1,25 +1,29 @@
 using backend_api.Domain.Models;
 using BackendApi.Infrastructure.Data;
+using BackendApi.Infrastructure.Tagging;
 using MongoDB.Driver;
 
 namespace BackendApi.Infrastructure.Repositories;
 
 /// <summary>
-/// MongoDB-based repository implementation for ContactUser entities.
+/// MongoDB-based repository implementation for ContactUser entities with automatic tagging.
 /// </summary>
 public class ContactUserRepository : IContactUserRepository
 {
     private readonly MongoDbContext _dbContext;
     private readonly ILogger<ContactUserRepository> _logger;
     private readonly IMongoCollection<ContactUser> _collection;
+    private readonly ITaggingService _taggingService;
 
     public ContactUserRepository(
         MongoDbContext dbContext,
-        ILogger<ContactUserRepository> logger)
+        ILogger<ContactUserRepository> logger,
+        ITaggingService taggingService)
     {
         _dbContext = dbContext;
         _logger = logger;
         _collection = dbContext.ContactUsers;
+        _taggingService = taggingService;
     }
 
     public async Task<ContactUser?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
@@ -166,9 +170,22 @@ public class ContactUserRepository : IContactUserRepository
     {
         try
         {
-            await _collection.InsertOneAsync(contactUser, cancellationToken: cancellationToken);
-            _logger.LogInformation("Created contact user with ID: {Id}", contactUser.Id);
-            return contactUser;
+            // Apply tags before insertion
+            var taggedContact = await _taggingService.ApplyTagsAsync(
+                contactUser,
+                operation: "create",
+                performedBy: contactUser.ContactOwner,
+                dryRun: false,
+                cancellationToken: cancellationToken);
+
+            await _collection.InsertOneAsync(taggedContact, cancellationToken: cancellationToken);
+            
+            _logger.LogInformation(
+                "Created contact user with ID: {Id}, applied {TagCount} tags",
+                taggedContact.Id,
+                taggedContact.Tags.Count);
+            
+            return taggedContact;
         }
         catch (Exception ex)
         {
@@ -181,17 +198,29 @@ public class ContactUserRepository : IContactUserRepository
     {
         try
         {
-            var filter = Builders<ContactUser>.Filter.Eq(c => c.Id, contactUser.Id);
-            var result = await _collection.ReplaceOneAsync(filter, contactUser, cancellationToken: cancellationToken);
+            // Apply/update tags before update
+            var taggedContact = await _taggingService.ApplyTagsAsync(
+                contactUser,
+                operation: "update",
+                performedBy: null,
+                dryRun: false,
+                cancellationToken: cancellationToken);
+
+            var filter = Builders<ContactUser>.Filter.Eq(c => c.Id, taggedContact.Id);
+            var result = await _collection.ReplaceOneAsync(filter, taggedContact, cancellationToken: cancellationToken);
             
             if (result.MatchedCount == 0)
             {
-                _logger.LogWarning("Contact user not found for update: {Id}", contactUser.Id);
+                _logger.LogWarning("Contact user not found for update: {Id}", taggedContact.Id);
                 return null;
             }
 
-            _logger.LogInformation("Updated contact user with ID: {Id}", contactUser.Id);
-            return contactUser;
+            _logger.LogInformation(
+                "Updated contact user with ID: {Id}, current tag count: {TagCount}",
+                taggedContact.Id,
+                taggedContact.Tags.Count);
+            
+            return taggedContact;
         }
         catch (Exception ex)
         {

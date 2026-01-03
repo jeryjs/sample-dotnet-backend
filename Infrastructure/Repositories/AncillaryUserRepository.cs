@@ -1,25 +1,29 @@
 using backend_api.Domain.Models;
 using BackendApi.Infrastructure.Data;
+using BackendApi.Infrastructure.Tagging;
 using MongoDB.Driver;
 
 namespace BackendApi.Infrastructure.Repositories;
 
 /// <summary>
-/// MongoDB-based repository implementation for AncillaryUser entities.
+/// MongoDB-based repository implementation for AncillaryUser entities with automatic tagging.
 /// </summary>
 public class AncillaryUserRepository : IAncillaryUserRepository
 {
     private readonly MongoDbContext _dbContext;
     private readonly ILogger<AncillaryUserRepository> _logger;
     private readonly IMongoCollection<AncillaryUser> _collection;
+    private readonly ITaggingService _taggingService;
 
     public AncillaryUserRepository(
         MongoDbContext dbContext,
-        ILogger<AncillaryUserRepository> logger)
+        ILogger<AncillaryUserRepository> logger,
+        ITaggingService taggingService)
     {
         _dbContext = dbContext;
         _logger = logger;
         _collection = dbContext.AncillaryUsers;
+        _taggingService = taggingService;
     }
 
     public async Task<AncillaryUser?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
@@ -158,9 +162,22 @@ public class AncillaryUserRepository : IAncillaryUserRepository
     {
         try
         {
-            await _collection.InsertOneAsync(ancillaryUser, cancellationToken: cancellationToken);
-            _logger.LogInformation("Created ancillary user with ID: {Id}", ancillaryUser.Id);
-            return ancillaryUser;
+            // Apply tags before insertion
+            var taggedAncillary = await _taggingService.ApplyTagsAsync(
+                ancillaryUser,
+                operation: "create",
+                performedBy: null,
+                dryRun: false,
+                cancellationToken: cancellationToken);
+
+            await _collection.InsertOneAsync(taggedAncillary, cancellationToken: cancellationToken);
+            
+            _logger.LogInformation(
+                "Created ancillary user with ID: {Id}, applied {TagCount} tags",
+                taggedAncillary.Id,
+                taggedAncillary.Tags.Count);
+            
+            return taggedAncillary;
         }
         catch (Exception ex)
         {
@@ -173,17 +190,29 @@ public class AncillaryUserRepository : IAncillaryUserRepository
     {
         try
         {
-            var filter = Builders<AncillaryUser>.Filter.Eq(a => a.Id, ancillaryUser.Id);
-            var result = await _collection.ReplaceOneAsync(filter, ancillaryUser, cancellationToken: cancellationToken);
+            // Apply/update tags before update
+            var taggedAncillary = await _taggingService.ApplyTagsAsync(
+                ancillaryUser,
+                operation: "update",
+                performedBy: null,
+                dryRun: false,
+                cancellationToken: cancellationToken);
+
+            var filter = Builders<AncillaryUser>.Filter.Eq(a => a.Id, taggedAncillary.Id);
+            var result = await _collection.ReplaceOneAsync(filter, taggedAncillary, cancellationToken: cancellationToken);
             
             if (result.MatchedCount == 0)
             {
-                _logger.LogWarning("Ancillary user not found for update: {Id}", ancillaryUser.Id);
+                _logger.LogWarning("Ancillary user not found for update: {Id}", taggedAncillary.Id);
                 return null;
             }
 
-            _logger.LogInformation("Updated ancillary user with ID: {Id}", ancillaryUser.Id);
-            return ancillaryUser;
+            _logger.LogInformation(
+                "Updated ancillary user with ID: {Id}, current tag count: {TagCount}",
+                taggedAncillary.Id,
+                taggedAncillary.Tags.Count);
+            
+            return taggedAncillary;
         }
         catch (Exception ex)
         {

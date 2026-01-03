@@ -71,6 +71,9 @@ builder.Services.Configure<MongoDbSettings>(
 // Register MongoDB Context
 builder.Services.AddSingleton<MongoDbContext>();
 
+// Register Tagging Service
+builder.Services.AddSingleton<BackendApi.Infrastructure.Tagging.ITaggingService, BackendApi.Infrastructure.Tagging.TaggingService>();
+
 // Register Data Import Service
 builder.Services.AddSingleton<DataImportService>();
 

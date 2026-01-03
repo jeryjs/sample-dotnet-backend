@@ -100,6 +100,12 @@ public class MongoDbContext
         _database.GetCollection<ContactUser>(_settings.ContactUsersCollectionName);
 
     /// <summary>
+    /// Gets the Tag Definitions collection for the tag catalog.
+    /// </summary>
+    public IMongoCollection<TagDefinition> TagDefinitions =>
+        _database.GetCollection<TagDefinition>("tag_catalog");
+
+    /// <summary>
     /// Gets the underlying MongoDB database.
     /// </summary>
     public IMongoDatabase Database => _database;
@@ -146,7 +152,19 @@ public class MongoDbContext
                     Builders<Patient>.IndexKeys.Combine(
                         Builders<Patient>.IndexKeys.Ascending(p => p.AgencyInfo.PatientFName),
                         Builders<Patient>.IndexKeys.Ascending(p => p.AgencyInfo.PatientLName)),
-                    new CreateIndexOptions { Name = "idx_patient_fullname" })
+                    new CreateIndexOptions { Name = "idx_patient_fullname" }),
+                // Tag indexes for patients
+                new CreateIndexModel<Patient>(
+                    Builders<Patient>.IndexKeys.Ascending("tags.namespace"),
+                    new CreateIndexOptions { Name = "idx_patient_tags_namespace" }),
+                new CreateIndexModel<Patient>(
+                    Builders<Patient>.IndexKeys.Ascending("tags.name"),
+                    new CreateIndexOptions { Name = "idx_patient_tags_name" }),
+                new CreateIndexModel<Patient>(
+                    Builders<Patient>.IndexKeys.Combine(
+                        Builders<Patient>.IndexKeys.Ascending("tags.namespace"),
+                        Builders<Patient>.IndexKeys.Ascending("tags.name")),
+                    new CreateIndexOptions { Name = "idx_patient_tags_composite" })
             }, cancellationToken);
 
             // Ancillary User indexes
@@ -163,7 +181,19 @@ public class MongoDbContext
                     new CreateIndexOptions { Name = "idx_ancillary_entitytype" }),
                 new CreateIndexModel<AncillaryUser>(
                     Builders<AncillaryUser>.IndexKeys.Ascending(a => a.Email),
-                    new CreateIndexOptions { Name = "idx_ancillary_email" })
+                    new CreateIndexOptions { Name = "idx_ancillary_email" }),
+                // Tag indexes for ancillary users
+                new CreateIndexModel<AncillaryUser>(
+                    Builders<AncillaryUser>.IndexKeys.Ascending("tags.namespace"),
+                    new CreateIndexOptions { Name = "idx_ancillary_tags_namespace" }),
+                new CreateIndexModel<AncillaryUser>(
+                    Builders<AncillaryUser>.IndexKeys.Ascending("tags.name"),
+                    new CreateIndexOptions { Name = "idx_ancillary_tags_name" }),
+                new CreateIndexModel<AncillaryUser>(
+                    Builders<AncillaryUser>.IndexKeys.Combine(
+                        Builders<AncillaryUser>.IndexKeys.Ascending("tags.namespace"),
+                        Builders<AncillaryUser>.IndexKeys.Ascending("tags.name")),
+                    new CreateIndexOptions { Name = "idx_ancillary_tags_composite" })
             }, cancellationToken);
 
             // Contact User indexes
@@ -183,7 +213,35 @@ public class MongoDbContext
                     new CreateIndexOptions { Name = "idx_contact_lname" }),
                 new CreateIndexModel<ContactUser>(
                     Builders<ContactUser>.IndexKeys.Ascending(c => c.IsActive),
-                    new CreateIndexOptions { Name = "idx_contact_isactive" })
+                    new CreateIndexOptions { Name = "idx_contact_isactive" }),
+                // Tag indexes for contact users
+                new CreateIndexModel<ContactUser>(
+                    Builders<ContactUser>.IndexKeys.Ascending("tags.namespace"),
+                    new CreateIndexOptions { Name = "idx_contact_tags_namespace" }),
+                new CreateIndexModel<ContactUser>(
+                    Builders<ContactUser>.IndexKeys.Ascending("tags.name"),
+                    new CreateIndexOptions { Name = "idx_contact_tags_name" }),
+                new CreateIndexModel<ContactUser>(
+                    Builders<ContactUser>.IndexKeys.Combine(
+                        Builders<ContactUser>.IndexKeys.Ascending("tags.namespace"),
+                        Builders<ContactUser>.IndexKeys.Ascending("tags.name")),
+                    new CreateIndexOptions { Name = "idx_contact_tags_composite" })
+            }, cancellationToken);
+
+            // Tag Catalog indexes
+            await TagDefinitions.Indexes.CreateManyAsync(new[]
+            {
+                new CreateIndexModel<TagDefinition>(
+                    Builders<TagDefinition>.IndexKeys.Combine(
+                        Builders<TagDefinition>.IndexKeys.Ascending(t => t.Namespace),
+                        Builders<TagDefinition>.IndexKeys.Ascending(t => t.Name)),
+                    new CreateIndexOptions { Name = "idx_tagdef_identifier", Unique = true }),
+                new CreateIndexModel<TagDefinition>(
+                    Builders<TagDefinition>.IndexKeys.Ascending(t => t.Category),
+                    new CreateIndexOptions { Name = "idx_tagdef_category" }),
+                new CreateIndexModel<TagDefinition>(
+                    Builders<TagDefinition>.IndexKeys.Ascending(t => t.IsDeprecated),
+                    new CreateIndexOptions { Name = "idx_tagdef_deprecated" })
             }, cancellationToken);
 
             _logger.LogInformation("MongoDB indexes created successfully");

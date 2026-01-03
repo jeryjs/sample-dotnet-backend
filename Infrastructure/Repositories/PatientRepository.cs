@@ -1,25 +1,29 @@
 using backend_api.Domain.Models;
 using BackendApi.Infrastructure.Data;
+using BackendApi.Infrastructure.Tagging;
 using MongoDB.Driver;
 
 namespace BackendApi.Infrastructure.Repositories;
 
 /// <summary>
-/// MongoDB-based repository implementation for Patient entities.
+/// MongoDB-based repository implementation for Patient entities with automatic tagging.
 /// </summary>
 public class PatientRepository : IPatientRepository
 {
     private readonly MongoDbContext _dbContext;
     private readonly ILogger<PatientRepository> _logger;
     private readonly IMongoCollection<Patient> _collection;
+    private readonly ITaggingService _taggingService;
 
     public PatientRepository(
         MongoDbContext dbContext,
-        ILogger<PatientRepository> logger)
+        ILogger<PatientRepository> logger,
+        ITaggingService taggingService)
     {
         _dbContext = dbContext;
         _logger = logger;
         _collection = dbContext.Patients;
+        _taggingService = taggingService;
     }
 
     public async Task<Patient?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
@@ -168,9 +172,22 @@ public class PatientRepository : IPatientRepository
     {
         try
         {
-            await _collection.InsertOneAsync(patient, cancellationToken: cancellationToken);
-            _logger.LogInformation("Created patient with ID: {Id}", patient.Id);
-            return patient;
+            // Apply tags before insertion
+            var taggedPatient = await _taggingService.ApplyTagsAsync(
+                patient,
+                operation: "create",
+                performedBy: patient.CreatedBy,
+                dryRun: false,
+                cancellationToken: cancellationToken);
+
+            await _collection.InsertOneAsync(taggedPatient, cancellationToken: cancellationToken);
+            
+            _logger.LogInformation(
+                "Created patient with ID: {Id}, applied {TagCount} tags",
+                taggedPatient.Id,
+                taggedPatient.Tags.Count);
+            
+            return taggedPatient;
         }
         catch (Exception ex)
         {
@@ -183,17 +200,29 @@ public class PatientRepository : IPatientRepository
     {
         try
         {
-            var filter = Builders<Patient>.Filter.Eq(p => p.Id, patient.Id);
-            var result = await _collection.ReplaceOneAsync(filter, patient, cancellationToken: cancellationToken);
+            // Apply/update tags before update
+            var taggedPatient = await _taggingService.ApplyTagsAsync(
+                patient,
+                operation: "update",
+                performedBy: null, // Could be passed from the calling context
+                dryRun: false,
+                cancellationToken: cancellationToken);
+
+            var filter = Builders<Patient>.Filter.Eq(p => p.Id, taggedPatient.Id);
+            var result = await _collection.ReplaceOneAsync(filter, taggedPatient, cancellationToken: cancellationToken);
             
             if (result.MatchedCount == 0)
             {
-                _logger.LogWarning("Patient not found for update: {Id}", patient.Id);
+                _logger.LogWarning("Patient not found for update: {Id}", taggedPatient.Id);
                 return null;
             }
 
-            _logger.LogInformation("Updated patient with ID: {Id}", patient.Id);
-            return patient;
+            _logger.LogInformation(
+                "Updated patient with ID: {Id}, current tag count: {TagCount}",
+                taggedPatient.Id,
+                taggedPatient.Tags.Count);
+            
+            return taggedPatient;
         }
         catch (Exception ex)
         {
