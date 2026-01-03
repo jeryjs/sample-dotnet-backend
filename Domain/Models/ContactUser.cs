@@ -90,4 +90,11 @@ public record ContactUser
     /// </summary>
     [JsonPropertyName("isActive")]
     public bool IsActive { get; init; }
+
+    /// <summary>
+    /// Gets the collection of tags for classification, security, and compliance.
+    /// Tags are used for access control, data governance, and automated workflows.
+    /// </summary>
+    [JsonPropertyName("tags")]
+    public IReadOnlyCollection<backend_api.Domain.Common.Tag> Tags { get; init; } = Array.Empty<backend_api.Domain.Common.Tag>();
 }
